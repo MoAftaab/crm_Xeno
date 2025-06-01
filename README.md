@@ -1,181 +1,277 @@
-# Xeno CRM - Advanced Customer Relationship Management System
+# Xeno CRM - Advanced Customer Relationship Management Platform
 
 <div align="center">
   <img src="https://img.shields.io/badge/Node.js-v18.0.0-green" />
   <img src="https://img.shields.io/badge/Express-v4.18.2-blue" />
-  <img src="https://img.shields.io/badge/React-v18.0.0-blue" />
-  <img src="https://img.shields.io/badge/MongoDB-v6.0-green" />
-  <img src="https://img.shields.io/badge/Mongoose-v7.0.0-brown" />
   <img src="https://img.shields.io/badge/Next.js-v13.0.0-black" />
+  <img src="https://img.shields.io/badge/MongoDB-v6.0-green" />
   <img src="https://img.shields.io/badge/TypeScript-v5.0.0-blue" />
   <img src="https://img.shields.io/badge/JWT-Authentication-yellow" />
-  <img src="https://img.shields.io/badge/Gemini%20AI-Integration-purple" />
   <img src="https://img.shields.io/badge/Swagger-Documentation-green" />
+  <img src="https://img.shields.io/badge/Gemini%20AI-Integration-purple" />
 </div>
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
+## Table of Contents
 - [System Architecture](#system-architecture)
-- [Key Features](#key-features)
-  - [Customer Management](#customer-management)
-  - [Order Management](#order-management)
-  - [Customer Segmentation](#customer-segmentation)
-  - [AI-Powered Campaign Management](#ai-powered-campaign-management)
-  - [Campaign Delivery System](#campaign-delivery-system)
-  - [Data Ingestion APIs](#data-ingestion-apis)
+- [Dashboard Preview](#dashboard-preview)
+- [Core Features](#core-features)
+- [Tech Stack](#tech-stack)
 - [API Documentation](#api-documentation)
-- [Security Features](#security-features)
-- [Installation & Setup](#installation--setup)
-- [Screenshots](#screenshots)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
 
-## 💡 Overview
+## System Architecture
 
-Xeno CRM is an advanced customer relationship management system that combines traditional CRM functionality with AI-powered campaign management. The platform enables businesses to manage customers, track orders, create targeted customer segments, and deliver personalized marketing campaigns using Gemini AI.
+![System Architecture](MiniCRMPnG.png)
 
-```
-Frontend (Next.js) <--> Backend (Express/Node.js) <--> MongoDB
-                             ^
-                             |
-                     Gemini AI & Delivery APIs
-```
+The Xeno CRM architecture follows a modern full-stack approach with clear separation of concerns:
 
-## 🏗️ System Architecture
+- **Frontend**: Next.js-based UI with React components and hooks for state management
+- **Backend**: Express.js API server with dedicated controllers and services
+- **Data Layer**: MongoDB for persistent storage with Mongoose ODM
+- **Caching**: Redis for performance optimization
+- **External Services**: Integration with AI APIs and message delivery providers
 
-Xeno CRM follows a modern microservices-inspired architecture with clear separation of concerns:
+## Dashboard Preview
 
-```
-┌───────────────────┐      ┌───────────────────┐      ┌────────────────┐
-│   Presentation    │      │    Application    │      │     Data       │
-│      Layer        │<────>│      Layer        │<────>│     Layer      │
-│   (Next.js UI)    │      │  (Express APIs)   │      │   (MongoDB)    │
-└───────────────────┘      └───────────────────┘      └────────────────┘
-                                     ^
-                                     |
-                           ┌─────────┴─────────┐
-                           │  External Services │
-                           │  - Gemini AI      │
-                           │  - Delivery Vendors│
-                           └───────────────────┘
-```
+![Dashboard Preview](WhatsApp%20Image%202025-06-01%20at%2002.20.18_554a5951.jpg)
 
-## 🚀 Key Features
+The intuitive dashboard provides a comprehensive overview of your customer data, orders, campaigns, and analytics in a clean, modern UI.
+
+## Landing Page
+
+A detailed landing page is available in the repository as a PDF document ([localhost_3000_ (1).pdf](localhost_3000_%20(1).pdf)). This showcases the user interface, entry point to the application, and the overall user experience design.
+
+## Core Features
 
 ### Customer Management
-
-- **360° Customer View**: Comprehensive dashboard for viewing customer information, order history, and engagement metrics
-- **Customer Import/Export**: Bulk import and export functionality via CSV
-- **Automated Tracking**: Track customer lifetime value, visit count, and last activity
-
-```
-User uploads CSV → Validation → Data Processing → Database Storage → Success/Error Response
-```
+- Customer CRUD operations via RESTful APIs
+- Customer data model with flexible attributes
+- Email uniqueness checks scoped by userId
+- Customer filtering and search capabilities
 
 ### Order Management
-
-- **Order Tracking**: Monitor order status, total amount, and items
-- **Customer Association**: Automatically link orders with customer profiles
-- **Bulk Import**: Easily import order data via CSV files
-
-### Customer Segmentation
-
-- **Dynamic Segment Rules**: Create segments based on multiple criteria
-- **Rule Engine**: Complex rule combinations with AND/OR logic
-- **Real-time Updates**: Segments automatically updated as customer data changes
-
-```
-┌──────────────┐     ┌─────────────────┐     ┌──────────────────┐
-│ Customer Data│────>│ Segmentation    │────>│ Customer Segments │
-└──────────────┘     │ Rules Engine    │     │ - VIP Customers   │
-                     └─────────────────┘     │ - New Customers   │
-                                             │ - At-Risk Customers│
-                                             └──────────────────┘
-```
-
-### AI-Powered Campaign Management
-
-- **Gemini AI Integration**: Generate personalized campaign messages based on customer segments
-- **Content Analysis**: AI analyzes customer segments to create targeted content
-- **Smart Scheduling**: AI-recommended delivery times based on customer engagement patterns
-
-```
-Marketer → Select Segment → AI Content Generation → Review → Schedule Campaign → Track Results
-```
-
-### Campaign Delivery System
-
-- **Multi-channel Delivery**: Send campaigns via SMS, email, or other channels
-- **Batch Processing**: Efficient delivery through batched processing
-- **Delivery Tracking**: Monitor delivery status, open rates, and engagement metrics
-- **Webhook Integration**: Receive and process delivery receipts from vendors
-
-```
-┌─────────────┐     ┌────────────────┐     ┌─────────────────┐
-│ Campaign    │────>│ Message Delivery│────>│ Delivery Vendors│
-│ Creation    │     │ Service         │     │ (SMS/Email)     │
-└─────────────┘     └────────────────┘     └─────────────────┘
-                           │                        │
-                           v                        v
-                    ┌────────────────┐     ┌─────────────────┐
-                    │ Batch Processing│<────│ Delivery Receipt│
-                    │ & Analytics    │     │ Webhooks        │
-                    └────────────────┘     └─────────────────┘
-```
+- Order tracking and association with customers
+- Order history viewing
+- Order status updates
 
 ### Data Ingestion APIs
+- Secure CSV import for customers via `POST /api/data/import/customers`
+- Secure CSV import for orders via `POST /api/data/import/orders`
+- Sample CSV templates via `GET /api/data/samples/customer` and `GET /api/data/samples/order`
+- Comprehensive validation with detailed error reporting
+- Support for partial success (HTTP 207) when some rows fail but others succeed
 
-- **Secure REST APIs**: Well-documented endpoints for data ingestion
-- **CSV Processing**: Efficient bulk data import via CSV files
-- **Validation & Error Handling**: Comprehensive data validation and detailed error reporting
-- **Authentication**: JWT-secured endpoints for data protection
+### Authentication & Security
+- JWT-based authentication
+- Middleware for protecting sensitive endpoints
+- Role-based access control
+- API path protection
 
+### API Documentation
+- Comprehensive Swagger/OpenAPI documentation
+- Interactive API testing through Swagger UI
+- Detailed request/response schemas
+- API accessible at `/api-docs` endpoint
+
+### Campaign Management
+- Campaign creation and tracking
+- Campaign scheduling
+- AI integration for message generation
+
+### Message Delivery System
+- AI Smart Scheduling Suggestions
+- Multi-channel delivery (SMS, email)
+- Batch processing for efficient delivery
+- Delivery tracking and receipts via webhooks
+
+### Customer Segmentation
+- Rules-based segmentation engine
+- Segment creation based on customer attributes
+- AND/OR logic for complex segment rules
+
+### Caching System
+- Redis-based caching for improved performance
+- Fallback to memory cache when Redis is unavailable
+
+### Error Handling
+- Comprehensive error handling across the application
+- Detailed error responses with appropriate HTTP status codes
+- Validation error reporting
+
+## Tech Stack
+
+### Frontend
+- **Next.js**: For server-side rendering and routing
+- **TypeScript**: For type safety
+- **Tailwind CSS**: For responsive UI design
+- **React Query**: For data fetching and caching
+- **Context API**: For state management
+
+### Backend
+- **Node.js**: Runtime environment
+- **Express.js**: Web framework
+- **TypeScript**: For type safety
+- **MongoDB**: Database
+- **Mongoose**: ODM for MongoDB
+- **Redis**: For caching and message queues
+- **JWT**: For authentication
+- **Swagger/OpenAPI**: For API documentation
+- **Multer**: For file uploads
+- **CSV Parser**: For CSV data processing
+
+### AI & Delivery
+- **Gemini AI API**: For intelligent content generation
+- **Redis Streams**: For message queuing
+- **Batch Processing**: For efficient message delivery
+- **Webhook Handlers**: For delivery receipts
+
+## API Documentation
+
+The API is fully documented using Swagger/OpenAPI and can be accessed at `/api-docs` when the server is running.
+
+### Key API Endpoints
+
+#### Authentication
+- `POST /api/auth/login`: User login
+- `POST /api/auth/register`: User registration
+
+#### Customers
+- `GET /api/customers`: List customers
+- `POST /api/customers`: Create customer
+- `GET /api/customers/:id`: Get customer details
+- `PUT /api/customers/:id`: Update customer
+- `DELETE /api/customers/:id`: Delete customer
+
+#### Orders
+- `GET /api/orders`: List orders
+- `POST /api/orders`: Create order
+- `GET /api/orders/:id`: Get order details
+- `PUT /api/orders/:id`: Update order
+- `DELETE /api/orders/:id`: Delete order
+
+#### Data Import
+- `POST /api/data/import/customers`: Import customers via CSV
+- `POST /api/data/import/orders`: Import orders via CSV
+- `GET /api/data/samples/customer`: Download customer CSV template
+- `GET /api/data/samples/order`: Download order CSV template
+
+#### Segments
+- `GET /api/segments`: List segments
+- `POST /api/segments`: Create segment
+- `GET /api/segments/:id`: Get segment details
+- `PUT /api/segments/:id`: Update segment
+- `DELETE /api/segments/:id`: Delete segment
+- `GET /api/segments/:id/customers`: Get customers in segment
+
+#### Campaigns
+- `GET /api/campaigns`: List campaigns
+- `POST /api/campaigns`: Create campaign
+- `GET /api/campaigns/:id`: Get campaign details
+- `PUT /api/campaigns/:id`: Update campaign
+- `DELETE /api/campaigns/:id`: Delete campaign
+- `POST /api/campaigns/:id/schedule`: Schedule campaign
+- `GET /api/campaigns/:id/stats`: Get campaign statistics
+
+#### AI
+- `POST /api/ai/generate-message`: Generate campaign message
+- `POST /api/ai/suggest-schedule`: Get AI scheduling suggestions
+
+#### Delivery
+- `GET /api/delivery/stats`: Get delivery statistics
+- `POST /api/delivery/webhook`: Webhook for delivery receipts
+
+## Project Structure
+
+### Frontend Structure
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ Data Ingestion Flow                                         │
-│                                                             │
-│ ┌────────┐    ┌──────────┐    ┌─────────────┐    ┌────────┐ │
-│ │ Upload │───>│ Validate │───>│ Process Rows│───>│ Store  │ │
-│ │ CSV    │    │ Headers  │    │ & Validate  │    │ Data   │ │
-│ └────────┘    └──────────┘    └─────────────┘    └────────┘ │
-│       │                              │                      │
-│       │         ┌──────────┐         │                      │
-│       └────────>│ Generate │<────────┘                      │
-│                 │ Response │                                │
-│                 └──────────┘                                │
-└─────────────────────────────────────────────────────────────┘
+frontend/
+├── src/
+│   ├── app/                  # Next.js 13+ app directory
+│   │   ├── dashboard/        # Dashboard pages
+│   │   │   ├── customers/    # Customer management pages
+│   │   │   ├── orders/       # Order management pages
+│   │   │   ├── campaigns/    # Campaign management pages
+│   │   │   ├── segment-rules/# Segmentation rules pages
+│   │   │   ├── analytics/    # Analytics dashboard pages
+│   │   │   └── settings/     # Settings pages
+│   ├── components/           # Reusable UI components
+│   ├── contexts/             # React contexts
+│   ├── hooks/                # Custom React hooks
+│   ├── services/             # API service layers
+│   ├── styles/               # Global styles and themes
+│   └── lib/                  # Utilities and helpers
 ```
 
-## 📚 API Documentation
+### Backend Structure
+```
+backend/
+├── src/
+│   ├── config/               # Configuration files
+│   │   ├── db.ts             # Database configuration
+│   │   ├── redis.ts          # Redis configuration
+│   │   └── swagger.ts        # Swagger configuration
+│   ├── controllers/          # Route controllers
+│   │   ├── authController.ts # Authentication controller
+│   │   ├── customerController.ts # Customer controller
+│   │   ├── orderController.ts    # Order controller
+│   │   ├── campaignController.ts # Campaign controller
+│   │   ├── segmentController.ts  # Segment controller
+│   │   ├── aiController.ts       # AI controller
+│   │   ├── deliveryController.ts # Delivery controller
+│   │   └── uploadController.ts   # File upload controller
+│   ├── docs/                 # API documentation
+│   │   ├── swagger.ts        # Swagger setup
+│   │   ├── auth.doc.ts       # Auth API docs
+│   │   ├── data-ingestion.doc.ts # Data ingestion API docs
+│   │   └── campaign.doc.ts   # Campaign API docs
+│   ├── interfaces/           # TypeScript interfaces
+│   ├── middleware/           # Express middlewares
+│   │   ├── auth.ts           # Auth middleware
+│   │   ├── cache.ts          # Caching middleware
+│   │   ├── error.ts          # Error handling middleware
+│   │   └── upload.ts         # File upload middleware
+│   ├── models/               # Database models
+│   │   ├── User.ts           # User model
+│   │   ├── Customer.ts       # Customer model
+│   │   ├── Order.ts          # Order model
+│   │   ├── Segment.ts        # Segment model
+│   │   └── Campaign.ts       # Campaign model
+│   ├── routes/               # API routes
+│   │   ├── authRoutes.ts     # Auth routes
+│   │   ├── customerRoutes.ts # Customer routes
+│   │   ├── orderRoutes.ts    # Order routes
+│   │   ├── segmentRoutes.ts  # Segment routes
+│   │   ├── campaignRoutes.ts # Campaign routes
+│   │   ├── aiRoutes.ts       # AI routes
+│   │   ├── deliveryRoutes.ts # Delivery routes
+│   │   └── dataRoutes.ts     # Data import routes
+│   ├── services/             # Business logic
+│   │   ├── authService.ts    # Auth service
+│   │   ├── customerService.ts# Customer service
+│   │   ├── orderService.ts   # Order service
+│   │   ├── segmentService.ts # Segment service
+│   │   ├── campaignService.ts# Campaign service
+│   │   ├── aiService.ts      # AI service
+│   │   ├── uploadService.ts  # Upload service
+│   │   ├── deliveryBatchService.ts # Delivery batch service
+│   │   ├── messageDeliveryService.ts # Message delivery service
+│   │   └── campaignSchedulerService.ts # Campaign scheduler
+│   └── utils/                # Utility functions
+│       ├── validation.ts     # Validation utilities
+│       ├── errors.ts         # Error handling utilities
+│       └── helpers.ts        # Helper functions
+└── index.ts                  # Application entry point
+```
 
-Xeno CRM provides comprehensive API documentation using Swagger UI, accessible at `/api-docs` when the server is running.
-
-- **Authentication**: JWT-based authentication for secure API access
-- **Customers API**: Manage customer data, profiles, and attributes
-- **Orders API**: Create, retrieve, and manage order information
-- **Segments API**: Define and manage customer segments
-- **Campaigns API**: Create, launch, and monitor marketing campaigns
-- **AI API**: Generate content and insights using Gemini AI
-- **Delivery API**: Track campaign delivery statistics and webhooks
-- **Data Ingestion API**: Import customer and order data
-
-## 🔒 Security Features
-
-- **JWT Authentication**: Secure token-based authentication
-- **Role-Based Access Control**: Different permission levels for various user roles
-- **Input Validation**: Comprehensive validation of all user inputs
-- **Error Handling**: Secure error responses that don't leak sensitive information
-- **Environment Security**: Sensitive configuration stored in environment variables
-
-## 💻 Installation & Setup
+## Getting Started
 
 ### Prerequisites
-
-- Node.js v18 or higher
-- MongoDB v6.0 or higher
-- npm or yarn package manager
+- Node.js v18+
+- MongoDB
+- Redis (optional, falls back to in-memory cache)
 
 ### Backend Setup
-
 ```bash
 # Navigate to backend directory
 cd backend
@@ -183,16 +279,14 @@ cd backend
 # Install dependencies
 npm install
 
-# Set up environment variables
+# Create .env file with required variables
 cp .env.example .env
-# Edit .env with your configuration
 
 # Start development server
 npm run dev
 ```
 
 ### Frontend Setup
-
 ```bash
 # Navigate to frontend directory
 cd frontend
@@ -200,88 +294,31 @@ cd frontend
 # Install dependencies
 npm install
 
-# Set up environment variables
+# Create .env file with required variables
 cp .env.example .env.local
-# Edit .env.local with your configuration
 
 # Start development server
 npm run dev
 ```
 
-## 📸 Screenshots
+### Environment Variables
 
-### Dashboard Overview
-![Dashboard](https://via.placeholder.com/800x400?text=Dashboard+Overview)
+#### Backend (.env)
+```
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/xeno_crm
+JWT_SECRET=your_jwt_secret
+REDIS_URL=redis://localhost:6379
+GEMINI_API_KEY=your_gemini_api_key
+```
 
-### Customer Management
-![Customer Management](https://via.placeholder.com/800x400?text=Customer+Management)
-
-### Campaign Creation with AI
-![AI Campaign](https://via.placeholder.com/800x400?text=AI+Campaign+Creation)
-
-### Segmentation Rules
-![Segmentation Rules](https://via.placeholder.com/800x400?text=Segmentation+Rules)
-
-### API Documentation
-![Swagger API Docs](https://via.placeholder.com/800x400?text=Swagger+API+Documentation)
-
----
-
-## 📊 System Capabilities
-
-| Feature | Description | Implementation |
-|---------|-------------|----------------|
-| Customer Management | Full CRUD operations for customer data | MongoDB + Express |
-| Order Tracking | Track orders and link to customers | Mongoose ODM |
-| Segmentation | Dynamic customer segmentation | Rule Engine + MongoDB Aggregation |
-| AI Integration | Smart campaign content generation | Gemini API Integration |
-| Delivery System | Multi-channel campaign delivery | Webhook + Batch Processing |
-| Data Ingestion | Secure APIs for data import | Express + CSV Processing |
-| Authentication | Secure user authentication | JWT + bcrypt |
-| Documentation | API documentation | Swagger UI + JSDoc |
-
-## 💫 Recently Implemented Features
-
-### Secure Data Ingestion APIs
-
-We've implemented robust APIs for importing customer and order data via CSV uploads:
-
-- **Endpoints**:
-  - `POST /api/data/import/customers` — Upload CSV to import customers
-  - `POST /api/data/import/orders` — Upload CSV to import orders
-  - `GET /api/data/samples/customer` — Download sample CSV template for customers
-  - `GET /api/data/samples/order` — Download sample CSV template for orders
-
-- **Security Features**:
-  - JWT Authentication required for all endpoints
-  - 5MB file size limit
-  - CSV MIME type validation
-  - Robust input validation for each data field
-
-- **Validation & Error Handling**:
-  - Required field validation
-  - Format validation (email, phone, dates, amounts)
-  - Detailed row-level error reporting
-  - Partial success handling (HTTP 207)
-
-- **Performance Optimizations**:
-  - Streaming CSV parsing
-  - In-memory file processing
-  - Customer caching for order association
-
-### Enhanced Swagger Documentation
-
-Added comprehensive API documentation using Swagger UI for all endpoints:
-
-- **Features**:
-  - Detailed request/response schemas
-  - Authentication requirements
-  - Sample request bodies
-  - Response codes and meanings
-  - Test directly from the browser
+#### Frontend (.env.local)
+```
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+```
 
 ---
 
 <div align="center">
-  <p>Developed with ❤️ by Mohd Aftaab</p>
+  <p>Developed by Mohd Aftaab for Xeno SDE Internship Assignment 2025</p>
 </div>
