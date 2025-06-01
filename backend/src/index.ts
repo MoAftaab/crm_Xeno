@@ -4,12 +4,18 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import customerRoutes from './routes/customerRoutes';
+import orderRoutes from './routes/orderRoutes';
 import segmentRoutes from './routes/segmentRoutes';
 import campaignRoutes from './routes/campaignRoutes';
 import authRoutes from './routes/authRoutes';
 import aiRoutes from './routes/aiRoutes';
+import dataRoutes from './routes/dataRoutes';
+import deliveryRoutes from './routes/deliveryRoutes';
 import connectDB from './config/database';
 import { connectRedis } from './config/redis';
+import { initMockVendorEndpoints } from './services/mockVendorService';
+import { initCampaignScheduler } from './services/campaignSchedulerService';
+import { setupSwagger } from './docs/swagger';
 
 dotenv.config();
 
@@ -35,9 +41,15 @@ app.get('/', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/customers', customerRoutes);
+app.use('/api/orders', orderRoutes);
 app.use('/api/segments', segmentRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/data', dataRoutes);
+app.use('/api/delivery', deliveryRoutes);
+
+// Setup the mock vendor API for development/testing
+initMockVendorEndpoints(app);
 
 // Connect to Database and Redis
 const startServer = async () => {
@@ -52,9 +64,23 @@ const startServer = async () => {
       console.error('Redis connection failed, but continuing:', redisError);
     }
     
+    // Setup Swagger API documentation
+    setupSwagger(app);
+    console.log(`Swagger API docs available at http://localhost:${PORT}/api-docs`);
+    
     // Start server after connections
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
+      
+      // Initialize the campaign scheduler to process scheduled campaigns
+      const schedulerInterval = initCampaignScheduler();
+      
+      // Graceful shutdown to clear intervals
+      process.on('SIGINT', () => {
+        console.log('Shutting down campaign scheduler...');
+        clearInterval(schedulerInterval);
+        process.exit(0);
+      });
     });
   } catch (error) {
     console.error('Failed to start server:', error);
