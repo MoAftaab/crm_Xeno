@@ -34,7 +34,7 @@ The Xeno CRM architecture follows a modern full-stack approach with clear separa
 
 ## Dashboard Preview
 
-![Dashboard Preview](WhatsApp%20Image%202025-06-01%20at%2002.20.18_554a5951.jpg)
+![Dashboard Preview](https://github.com/MoAftaab/crm_Xeno/blob/main/WhatsApp%20Image%202025-06-01%20at%2002.20.18_ecbe7590.jpg)
 
 The intuitive dashboard provides a comprehensive overview of your customer data, orders, campaigns, and analytics in a clean, modern UI.
 
@@ -125,6 +125,30 @@ A detailed landing page is available in the repository as a PDF document ([local
 - **Redis Streams**: For message queuing
 - **Batch Processing**: For efficient message delivery
 - **Webhook Handlers**: For delivery receipts
+
+### Enhanced Swagger Documentation
+
+Added comprehensive API documentation using Swagger UI for all endpoints:
+
+- **Features**:
+  - Detailed request/response schemas
+  - Authentication requirements
+  - Sample request bodies
+  - Response codes and meanings
+  - Test directly from the browser
+    
+## 📊 System Capabilities
+
+| Feature | Description | Implementation |
+|---------|-------------|----------------|
+| Customer Management | Full CRUD operations for customer data | MongoDB + Express |
+| Order Tracking | Track orders and link to customers | Mongoose ODM |
+| Segmentation | Dynamic customer segmentation | Rule Engine + MongoDB Aggregation |
+| AI Integration | Smart campaign content generation | Gemini API Integration |
+| Delivery System | Multi-channel campaign delivery | Webhook + Batch Processing |
+| Data Ingestion | Secure APIs for data import | Express + CSV Processing |
+| Authentication | Secure user authentication | JWT + bcrypt |
+| Documentation | API documentation | Swagger UI + JSDoc |
 
 ## API Documentation
 
