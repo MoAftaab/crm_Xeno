@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "buildCommand": "cd frontend && npm install --legacy-peer-deps && npm run build",
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/next"
+    },
+    {
+      "src": "backend/src/index.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/src/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/$1"
+    }
+  ],
+  "env": {
+    "MONGODB_URI": "WILL_BE_SET_IN_VERCEL_DASHBOARD",
+    "ENABLE_REDIS": "true",
+    "REDIS_HOST": "WILL_BE_SET_IN_VERCEL_DASHBOARD",
+    "REDIS_PORT": "WILL_BE_SET_IN_VERCEL_DASHBOARD",
+    "REDIS_PASSWORD": "WILL_BE_SET_IN_VERCEL_DASHBOARD",
+    "REDIS_USERNAME": "WILL_BE_SET_IN_VERCEL_DASHBOARD"
+  }
+}
