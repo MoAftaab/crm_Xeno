@@ -224,7 +224,6 @@ export default function OrdersPage() {
       const bValue = String(b[sortField] || '');
       return sortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
     });
-  });
 
   const handleExport = () => {
     exportOrders.mutate();
