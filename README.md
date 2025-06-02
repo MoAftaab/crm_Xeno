@@ -212,6 +212,7 @@ The API is fully documented using Swagger/OpenAPI and can be accessed at /api-do
 
 ### Frontend Structure
 
+```
 frontend/
 ├── src/
 │   ├── app/                  # Next.js 13+ app directory
@@ -224,16 +225,21 @@ frontend/
 │   │   │   ├── import/       # Data import pages
 │   │   │   ├── analytics/    # Analytics dashboard pages
 │   │   │   └── settings/     # Settings pages
-│   ├── components/           # Reusable UI components
-│   ├── contexts/             # React contexts
-│   ├── hooks/                # Custom React hooks
-│   ├── services/             # API service layers
-│   ├── styles/               # Global styles and themes
-│   └── lib/                  # Utilities and helpers
-
+│   │   ├── components/       # Reusable UI components
+│   │   ├── contexts/         # React contexts
+│   │   ├── hooks/            # Custom React hooks
+│   │   ├── services/         # API service layers
+│   │   ├── styles/           # Global styles and themes
+│   │   └── lib/              # Utilities and helpers
+│   ├── config/               # Frontend configuration
+│   ├── pages/                # Next.js pages (legacy)
+│   └── data-service.ts       # Data import services
+└── package.json
+```
 
 ### Backend Structure
 
+```
 backend/
 ├── src/
 │   ├── config/               # Configuration files
@@ -292,64 +298,222 @@ backend/
 │       ├── validation.ts     # Validation utilities
 │       ├── errors.ts         # Error handling utilities
 │       └── helpers.ts        # Helper functions
-└── index.ts                  # Application entry point
-
-
-## Getting Started
+├── index.ts                  # Application entry point
+└── package.json
+```
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js v18+
-- MongoDB
-- Redis (optional, falls back to in-memory cache)
 
-### Backend Setup
-bash
+Before running the application, ensure you have the following installed:
+
+- **Node.js** v18.0.0 or higher ([Download here](https://nodejs.org/))
+- **MongoDB** v6.0 or higher ([Installation Guide](https://docs.mongodb.com/manual/installation/))
+- **Redis** (optional - falls back to in-memory cache) ([Installation Guide](https://redis.io/docs/getting-started/installation/))
+- **Git** for version control
+
+### 🔧 Installation & Setup
+
+#### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/xeno-crm.git
+cd xeno-crm
+```
+
+#### 2. Backend Setup
+
+```bash
 # Navigate to backend directory
 cd backend
 
 # Install dependencies
 npm install
 
-# Create .env file with required variables
+# Create environment file from template
 cp .env.example .env
+
+# Edit the .env file with your configuration
+nano .env  # or use your preferred editor
 
 # Start development server
 npm run dev
+```
 
+The backend server will start on `http://localhost:5000`
 
-### Frontend Setup
-bash
-# Navigate to frontend directory
+#### 3. Frontend Setup
+
+```bash
+# Navigate to frontend directory (from project root)
 cd frontend
 
 # Install dependencies
 npm install
 
-# Create .env file with required variables
+# Create environment file from template
 cp .env.example .env.local
+
+# Edit the .env.local file with your configuration
+nano .env.local  # or use your preferred editor
 
 # Start development server
 npm run dev
+```
 
+The frontend application will start on `http://localhost:3000`
 
-### Environment Variables
+### ⚙️ Environment Configuration
 
-#### Backend (.env)
+#### Backend Environment Variables (`.env`)
 
+```env
+# Server Configuration
 PORT=5000
+NODE_ENV=development
+
+# Database Configuration
 MONGODB_URI=mongodb://localhost:27017/xeno_crm
-JWT_SECRET=your_jwt_secret
+
+# Authentication
+JWT_SECRET=your_super_secure_jwt_secret_key_here
+JWT_EXPIRES_IN=7d
+
+# Redis Configuration (Optional)
 REDIS_URL=redis://localhost:6379
-GEMINI_API_KEY=your_gemini_api_key
 
+# AI Integration
+GEMINI_API_KEY=your_gemini_api_key_here
 
-#### Frontend (.env.local)
+# Email Configuration (Optional)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_app_password
+```
 
+#### Frontend Environment Variables (`.env.local`)
+
+```env
+# API Configuration
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 
+# Application Configuration
+NEXT_PUBLIC_APP_NAME=Xeno CRM
+NEXT_PUBLIC_APP_VERSION=1.0.0
+
+# Optional: Analytics
+NEXT_PUBLIC_ANALYTICS_ID=your_analytics_id
+```
+
+
+### 📊 Database Setup
+
+#### MongoDB Setup
+
+1. **Local MongoDB:**
+   ```bash
+   # Start MongoDB service
+   sudo systemctl start mongod  # Linux
+   brew services start mongodb-community  # macOS
+   ```
+
+2. **MongoDB Atlas (Cloud):**
+   - Create account at [MongoDB Atlas](https://www.mongodb.com/atlas)
+   - Create a new cluster
+   - Get connection string and update `MONGODB_URI` in `.env`
+
+
+```
+### 🔑 API Keys Setup
+
+#### Gemini AI API Key
+
+1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create a new API key
+3. Add it to your `.env` file as `GEMINI_API_KEY`
+
+### 🧪 Testing the Setup
+
+#### Backend Health Check
+
+```bash
+curl http://localhost:5000/api/health
+```
+
+#### Frontend Access
+
+Open your browser and navigate to:
+- **Frontend:** `http://localhost:3000`
+- **API Documentation:** `http://localhost:5000/api-docs`
+
+### 📝 Available Scripts
+
+#### Backend Scripts
+
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run test         # Run tests
+npm run lint         # Run ESLint
+```
+
+#### Frontend Scripts
+
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run type-check   # Run TypeScript checks
+```
+
+### 🔍 Troubleshooting
+
+#### Common Issues
+
+1. **Port Already in Use:**
+   ```bash
+   # Kill process using port 5000
+   lsof -ti:5000 | xargs kill -9
+   
+   # Kill process using port 3000
+   lsof -ti:3000 | xargs kill -9
+   ```
+
+2. **MongoDB Connection Issues:**
+   - Ensure MongoDB is running
+   - Check the connection string in `.env`
+   - Verify firewall settings
+
+3. **Redis Connection Issues:**
+   - The app will fall back to in-memory cache if Redis is unavailable
+   - Check Redis status: `redis-cli ping`
+
+4. **API Key Issues:**
+   - Verify Gemini API key is valid
+   - Check API quotas and limits
+
+### 📖 Next Steps
+
+Once setup is complete:
+
+1. **Access the Dashboard:** Navigate to `http://localhost:3000/dashboard`
+2. **Explore API Docs:** Visit `http://localhost:5000/api-docs`
+3. **Import Sample Data:** Use the data import features in the dashboard
+4. **Create Your First Campaign:** Follow the campaign creation workflow
+
+### 🆘 Need Help?
+
+- Check the [API Documentation](http://localhost:5000/api-docs) for endpoint details
+- Review the [Project Structure](#project-structure) for codebase understanding
+- Create an issue in the repository for bugs or feature requests
 
 ---
 
 <div align="center">
-  <p>Developed by Mohd Aftaab for Xeno SDE Internship Assignment 2025</p>
+  <h3>🎯 Ready to revolutionize your customer relationships!</h3>
+  <p><strong>Developed by Mohd Aftaab</strong></p>
+  <p><em>Xeno SDE Internship Assignment 2025</em></p>
 </div>
