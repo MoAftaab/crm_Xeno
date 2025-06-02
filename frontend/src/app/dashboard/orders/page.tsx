@@ -174,7 +174,8 @@ export default function OrdersPage() {
       const apiIds = new Set(apiData.map(o => o.id));
       const filteredMockData = mockOrders.filter(o => !apiIds.has(o.id));
       
-      setOrders([...filteredMockData, ...apiData]);
+      // Cast to Order[] to ensure type safety
+      setOrders([...filteredMockData, ...apiData] as Order[]);
     }
   }, [ordersQuery.data]);
   
@@ -363,7 +364,7 @@ export default function OrdersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#dbdbdb]">
-              {sortedOrders.map((order) => (
+              {filteredOrders.map((order: Order) => (
                 <tr key={order.id} className="hover:bg-[#f3f3f3] transition-colors">
                   <td className="px-4 py-4">
                     <div className="flex items-center">
@@ -422,7 +423,7 @@ export default function OrdersPage() {
         {/* Pagination */}
         <div className="px-4 py-3 bg-[#ededed] border-t border-[#dbdbdb] flex items-center justify-between">
           <div className="text-sm text-[#737373]">
-            Showing <span className="font-medium text-[#141414]">{sortedOrders.length}</span> of <span className="font-medium text-[#141414]">{orders.length}</span> orders
+            Showing <span className="font-medium text-[#141414]">{filteredOrders.length}</span> of <span className="font-medium text-[#141414]">{orders.length}</span> orders
           </div>
           <div className="flex items-center space-x-2">
             <button className="px-3 py-1 rounded-md bg-[#ededed] text-[#141414] hover:bg-[#f3f3f3] hover:text-[#737373] transition-colors">
