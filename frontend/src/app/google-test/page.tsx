@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { default as dynamicImport } from 'next/dynamic';
 
 // Add correct segment configuration
-export const dynamic = true;
+export const dynamic = 'force-dynamic';
 export const runtime = 'edge';
 
 // Dynamically import the GoogleAuthClient component to prevent SSR issues
