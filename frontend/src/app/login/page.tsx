@@ -3,19 +3,13 @@
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
-import { GoogleLogin } from '@react-oauth/google';
+import GoogleLoginButton from '@/components/GoogleLoginButton';
 import { toast } from 'react-hot-toast';
 
 export default function LoginPage() {
   const { googleLogin } = useAuth();
 
-  const handleGoogleSuccess = (credentialResponse: any) => {
-    googleLogin.mutate(credentialResponse.credential);
-  };
-
-  const handleGoogleError = () => {
-    toast.error('Google sign-in failed. Please try again.');
-  };
+  // Using the new GoogleLoginButton component for more reliable auth flow
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
@@ -58,15 +52,7 @@ export default function LoginPage() {
             {/* Google Sign In Button */}
             <div className="flex flex-col items-center justify-center py-8 px-4">
               <p className="text-gray-300 mb-6">Click below to sign in with your Google account</p>
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                theme="filled_black"
-                shape="pill"
-                text="signin_with"
-                useOneTap
-                size="large"
-              />
+              <GoogleLoginButton />
             </div>
           </div>
         </div>

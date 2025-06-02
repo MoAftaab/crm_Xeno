@@ -1,18 +1,46 @@
 import { useContext } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation, UseMutationResult } from 'react-query';
 import { toast } from 'react-hot-toast';
 import { authService } from '@/services/auth-service';
+
+interface AuthResponse {
+  token: string;
+  user: any; // Ideally this would be properly typed
+}
+
+export interface AuthContextType {
+  user: any;
+  login: UseMutationResult<AuthResponse, any, { email: string; password: string }, unknown>;
+  register: UseMutationResult<AuthResponse, any, { name: string; email: string; password: string; companyName?: string }, unknown>;
+  googleLogin: UseMutationResult<AuthResponse, any, string, unknown>;
+  logout: () => void;
+  isLoading: boolean;
+}
 
 // This is a simple wrapper around the AuthContext that adds React Query mutations
 // We'll use this if we can't directly modify the AuthContext
 
-export function useAuth() {
+export function useAuth(): AuthContextType {
+  // Define local hooks and values 
+  let authData: AuthContextType | null = null;
+  
   // Try to import from the context first
   try {
     // Try to get the existing auth context
     const { AuthContext } = require('@/contexts/AuthContext');
-    const context = useContext(AuthContext);
-    if (context) return context;
+    const contextModule = useContext(AuthContext);
+    
+    // Only use the context if it exists and has the expected shape
+    if (contextModule && 
+        typeof contextModule === 'object' && 
+        'user' in contextModule && 
+        'login' in contextModule && 
+        'register' in contextModule && 
+        'googleLogin' in contextModule && 
+        'logout' in contextModule) {
+      authData = contextModule as unknown as AuthContextType;
+      return authData;
+    }
   } catch (error) {
     console.log('Creating local auth hooks...');
   }
@@ -75,5 +103,5 @@ export function useAuth() {
     googleLogin,
     logout,
     isLoading: false
-  };
-} 
+  } as AuthContextType;
+}

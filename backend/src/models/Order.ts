@@ -1,19 +1,21 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IOrder extends Document {
-  customer_id: mongoose.Types.ObjectId;
+  customerId: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
   amount: number;
   status: string;
-  created_at: Date;
+  orderDate: Date;
   items: any[];
 }
 
 const OrderSchema: Schema = new Schema(
   {
-    customer_id: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
+    customerId: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     amount: { type: Number, required: true },
     status: { type: String, enum: ['pending', 'completed', 'cancelled'], default: 'pending' },
-    created_at: { type: Date, default: Date.now },
+    orderDate: { type: Date, default: Date.now },
     items: { type: Array, default: [] }
   },
   { timestamps: true }
@@ -21,4 +23,4 @@ const OrderSchema: Schema = new Schema(
 
 
 
-export default mongoose.model<IOrder>('Order', OrderSchema); 
+export default mongoose.model<IOrder>('Order', OrderSchema);

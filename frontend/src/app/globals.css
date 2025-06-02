@@ -1,26 +1,49 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #0f0f13;
+  --foreground: #ffffff;
+  --sidebar-bg: #0f0f13;
+  --card-bg: rgba(17, 17, 23, 0.7);
+  --card-border: rgba(43, 43, 56, 0.7);
+  --accent-green: #22c55e;
+  --accent-blue: #3b82f6;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Dashboard specific styles */
+.dashboard-sidebar {
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--card-border);
+  position: fixed;
+  height: 100vh;
+  width: 220px;
+  z-index: 50;
+}
+
+.dashboard-main {
+  margin-left: 220px;
+  background-color: var(--background);
+  min-height: 100vh;
+}
+
+.dashboard-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 0.5rem;
+}
+
+/* Remove any other theme switching */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0f0f13;
+    --foreground: #ffffff;
+  }
 }

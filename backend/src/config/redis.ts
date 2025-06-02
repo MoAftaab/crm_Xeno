@@ -1,44 +1,25 @@
-import { createClient } from 'redis';
+import Redis from 'ioredis';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Redis Cloud configuration
-const redisConfig = {
-  username: 'default',
-  password: 'EeCYciJ5dXxxn6yyd4cUHhNWkACQS5KA',
-  socket: {
-    host: 'redis-14944.crce182.ap-south-1-1.ec2.redns.redis-cloud.com',
-    port: 14944
-  }
-};
+const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
-let redisClient: any = null;
-let isRedisEnabled = process.env.ENABLE_REDIS !== 'false'; // Enable by default unless explicitly disabled
+export const redisClient = new Redis(REDIS_URL, {
+  retryStrategy: (times: number) => {
+    // Exponential backoff with max 3 seconds
+    const delay = Math.min(times * 50, 3000);
+    return delay;
+  },
+  maxRetriesPerRequest: 3,
+});
 
-// Only create the Redis client if it's enabled
-if (isRedisEnabled) {
-  redisClient = createClient(redisConfig);
+redisClient.on('error', (err: Error) => {
+  console.error('Redis Client Error:', err);
+});
 
-  redisClient.on('error', (err: Error) => console.error('Redis Client Error:', err));
-}
+redisClient.on('connect', () => {
+  console.log('Connected to Redis');
+});
 
-const connectRedis = async (): Promise<void> => {
-  // Skip Redis connection if it's disabled
-  if (!isRedisEnabled) {
-    console.log('Redis is disabled, skipping connection');
-    return;
-  }
-  
-  try {
-    await redisClient.connect();
-    console.log('Redis Cloud connected successfully');
-  } catch (error) {
-    console.error('Redis connection error:', error);
-    // Don't fail the application if Redis fails to connect
-    console.log('Continuing without Redis');
-    isRedisEnabled = false;
-  }
-};
-
-export { redisClient, connectRedis, isRedisEnabled }; 
+export default redisClient;

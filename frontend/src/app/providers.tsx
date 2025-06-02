@@ -22,39 +22,47 @@ interface ProvidersProps {
 }
 
 export function Providers({ children }: ProvidersProps) {
-  // Updated client ID from user credentials
+  // Google client ID
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 
     '527849281978-phiunv6mm42akm59kha90cvqallo9do8.apps.googleusercontent.com';
 
-  return (
+  // Check if we're running in the browser
+  const isBrowser = typeof window !== 'undefined';
+  
+  // Conditional rendering based on client/server environment
+  const content = isBrowser ? (
     <GoogleOAuthProvider clientId={googleClientId}>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          {children}
-          <Toaster 
-            position="top-right"
-            toastOptions={{
-              style: {
-                background: '#1e1e2e',
-                color: '#ffffff',
-                border: '1px solid #383854',
-              },
-              success: {
-                iconTheme: {
-                  primary: '#10b981',
-                  secondary: '#ffffff',
-                },
-              },
-              error: {
-                iconTheme: {
-                  primary: '#ef4444',
-                  secondary: '#ffffff',
-                },
-              },
-            }}
-          />
-        </AuthProvider>
-      </QueryClientProvider>
+      {children}
     </GoogleOAuthProvider>
+  ) : children;
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        {content}
+        <Toaster 
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#1e1e2e',
+              color: '#ffffff',
+              border: '1px solid #383854',
+            },
+            success: {
+              iconTheme: {
+                primary: '#10b981',
+                secondary: '#ffffff',
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: '#ffffff',
+              },
+            },
+          }}
+        />
+      </AuthProvider>
+    </QueryClientProvider>
   );
-} 
+}

@@ -1,93 +1,58 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import helmet from 'helmet';
 import dotenv from 'dotenv';
-import customerRoutes from './routes/customerRoutes';
-import orderRoutes from './routes/orderRoutes';
-import segmentRoutes from './routes/segmentRoutes';
-import campaignRoutes from './routes/campaignRoutes';
-import authRoutes from './routes/authRoutes';
-import aiRoutes from './routes/aiRoutes';
 import dataRoutes from './routes/dataRoutes';
-import deliveryRoutes from './routes/deliveryRoutes';
-import connectDB from './config/database';
-import { connectRedis } from './config/redis';
-import { initMockVendorEndpoints } from './services/mockVendorService';
-import { initCampaignScheduler } from './services/campaignSchedulerService';
+import authRoutes from './routes/authRoutes';
+import campaignRoutes from './routes/campaignRoutes';
+import customerRoutes from './routes/customerRoutes';
+import segmentRoutes from './routes/segmentRoutes';
 import { setupSwagger } from './docs/swagger';
 
+// Load environment variables
 dotenv.config();
 
+// Create Express app
 const app = express();
-const PORT = process.env.PORT || 5000;
+const port = process.env.PORT || 5000; // Changed to port 5000 to avoid conflicts
 
 // Middleware
+app.use(cors());
 app.use(express.json());
-// Configure CORS to explicitly allow frontend requests
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001', 'http://127.0.0.1:3001'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-app.use(helmet());
+
+// MongoDB connection
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://moaftaab786:ootodQep0smfGaq6@crmxeno.jj716zf.mongodb.net/?retryWrites=true&w=majority&appName=crmXeno';
+
+mongoose.connect(MONGODB_URI)
+  .then(() => {
+    console.log('Connected to MongoDB Atlas');
+  })
+  .catch((error) => {
+    console.error('MongoDB connection error:', error);
+  });
+
+// Setup Swagger documentation
+setupSwagger(app);
 
 // Routes
-app.get('/', (req, res) => {
-  res.send('CRM API is running');
+app.use('/api/data', dataRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/campaigns', campaignRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/segments', segmentRoutes);
+
+// Basic health check route
+app.get('/', (req: express.Request, res: express.Response) => {
+  res.json({ 
+    status: 'ok', 
+    message: 'Server is running',
+    swagger: 'API documentation available at /api-docs'
+  });
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/customers', customerRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/segments', segmentRoutes);
-app.use('/api/campaigns', campaignRoutes);
-app.use('/api/ai', aiRoutes);
-app.use('/api/data', dataRoutes);
-app.use('/api/delivery', deliveryRoutes);
+// Start server
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
 
-// Setup the mock vendor API for development/testing
-initMockVendorEndpoints(app);
-
-// Connect to Database and Redis
-const startServer = async () => {
-  try {
-    // Connect to MongoDB
-    await connectDB();
-    
-    // Try to connect to Redis, but don't fail if it doesn't connect
-    try {
-      await connectRedis();
-    } catch (redisError) {
-      console.error('Redis connection failed, but continuing:', redisError);
-    }
-    
-    // Setup Swagger API documentation
-    setupSwagger(app);
-    console.log(`Swagger API docs available at http://localhost:${PORT}/api-docs`);
-    
-    // Start server after connections
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-      
-      // Initialize the campaign scheduler to process scheduled campaigns
-      const schedulerInterval = initCampaignScheduler();
-      
-      // Graceful shutdown to clear intervals
-      process.on('SIGINT', () => {
-        console.log('Shutting down campaign scheduler...');
-        clearInterval(schedulerInterval);
-        process.exit(0);
-      });
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  }
-};
-
-startServer();
-
-export default app; 
+export default app;

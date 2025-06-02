@@ -1,174 +1,219 @@
-import { Request, Response } from 'express';
-import { verifyGoogleToken, generateToken } from '../services/authService';
-import User, { UserDocument } from '../models/User';
-import bcrypt from 'bcrypt';
-import { Types } from 'mongoose';
+import { Response } from '../types/express';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import { AuthenticatedRequest } from '../interfaces/interfaces';
+import User from '../models/User';
+import { OAuth2Client } from 'google-auth-library';
 
-// Google OAuth login
-export const googleLogin = async (req: Request, res: Response): Promise<void> => {
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
+// Hardcoding the Google Client ID to ensure it's correctly set
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '527849281978-phiunv6mm42akm59kha90cvqallo9do8.apps.googleusercontent.com';
+
+console.log('Using Google Client ID:', GOOGLE_CLIENT_ID);
+
+const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+
+/**
+ * Handle Google OAuth login/signup
+ */
+export const googleLogin = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
+    console.log('Google login attempt:', req.body);
     const { token } = req.body;
     
     if (!token) {
-      res.status(400).json({ message: 'Token is required' });
+      console.error('Missing token in request');
+      res.status(400).json({ message: 'Google token is required' });
       return;
     }
+
+    console.log('Attempting to verify Google token...');
     
-    const googleUser = await verifyGoogleToken(token);
-    
-    if (!googleUser) {
-      res.status(401).json({ message: 'Invalid Google token' });
-      return;
-    }
-    
-    // Check if user exists in our database
-    let user = await User.findOne({ email: googleUser.email });
-    
-    if (!user) {
-      // Create new user with Google data
-      user = new User({
-        name: googleUser.name,
-        email: googleUser.email,
-        // No password for Google users
-        password: await bcrypt.hash(Math.random().toString(36).slice(-10), 10),
-        role: 'user',
-        googleId: googleUser.id,
-        picture: googleUser.picture
+    // Verify the token with Google
+    let ticket;
+    try {
+      ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: GOOGLE_CLIENT_ID
       });
-      
-      user = await user.save();
-    } else if (!user.googleId) {
-      // If user exists but doesn't have googleId, link the accounts
-      user.googleId = googleUser.id;
-      user.picture = user.picture || googleUser.picture;
-      await user.save();
+      console.log('Google token verified successfully');
+    } catch (verifyError) {
+      console.error('Google token verification error:', verifyError);
+      res.status(401).json({ message: 'Failed to verify Google token', error: verifyError instanceof Error ? verifyError.message : 'Unknown verification error' });
+      return;
     }
-    
-    // Generate JWT token
-    const userId = user._id instanceof Types.ObjectId 
-      ? user._id.toString() 
-      : String(user._id);
-    
-    const jwtToken = generateToken(userId, user.email);
-    
-    res.status(200).json({
-      token: jwtToken,
-      user: {
-        id: userId,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        picture: user.picture
-      }
-    });
-  } catch (error) {
-    console.error('Google authentication failed:', error);
-    res.status(500).json({ message: 'Authentication failed', error });
-  }
-};
 
-// Register new user
-export const register = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { name, email, password, companyName } = req.body;
-    
-    // Validate required fields
-    if (!name || !email || !password) {
-      res.status(400).json({ message: 'Name, email, and password are required' });
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      console.error('Invalid Google token payload:', payload);
+      res.status(400).json({ message: 'Invalid Google token' });
       return;
     }
     
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      res.status(409).json({ message: 'User already exists with this email' });
+    console.log('Google payload received:', { 
+      email: payload.email, 
+      name: payload.name, 
+      sub: payload.sub,
+      picture: payload.picture ? 'Picture exists' : 'No picture'
+    });
+
+    // Check if user exists
+    let user;
+    try {
+      user = await User.findOne({ email: payload.email });
+      console.log('User lookup result:', user ? 'User found' : 'User not found');
+    } catch (dbError) {
+      console.error('Database error during user lookup:', dbError);
+      res.status(500).json({ message: 'Database error during user lookup', error: dbError instanceof Error ? dbError.message : 'Unknown database error' });
       return;
     }
-    
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    
-    // Create new user
-    const newUser = new User({
-      name,
-      email,
-      password: hashedPassword,
-      companyName: companyName || '',
-      role: 'user'
-    });
-    
-    const savedUser = await newUser.save();
-    
-    // Get the ID as string
-    const userId = savedUser._id instanceof Types.ObjectId 
-      ? savedUser._id.toString() 
-      : String(savedUser._id);
-    
-    // Generate token
-    const token = generateToken(userId, savedUser.email);
-    
-    // Return user data without password
-    res.status(201).json({
-      token,
-      user: {
-        id: userId,
-        name: savedUser.name,
-        email: savedUser.email,
-        role: savedUser.role
+
+    // Create new user if doesn't exist
+    if (!user) {
+      try {
+        console.log('Creating new user with email:', payload.email);
+        user = await User.create({
+          email: payload.email,
+          name: payload.name || 'Google User',
+          password: await bcrypt.hash(Math.random().toString(36).slice(-8), 10),
+          googleId: payload.sub,
+          avatar: payload.picture
+        });
+        console.log('New user created successfully');
+      } catch (createError) {
+        console.error('Failed to create new user:', createError);
+        res.status(500).json({ message: 'Failed to create new user', error: createError instanceof Error ? createError.message : 'Unknown error during user creation' });
+        return;
       }
-    });
+    }
+
+    // Generate JWT
+    let jwtToken;
+    try {
+      console.log('Generating JWT token for user:', user._id);
+      jwtToken = jwt.sign(
+        { id: user._id, email: user.email },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+      console.log('JWT token generated successfully');
+    } catch (jwtError) {
+      console.error('JWT generation error:', jwtError);
+      res.status(500).json({ message: 'Failed to generate authentication token', error: jwtError instanceof Error ? jwtError.message : 'Unknown JWT error' });
+      return;
+    }
+
+    // Send successful response
+    try {
+      const response = {
+        token: jwtToken,
+        user: {
+          id: user._id,
+          email: user.email,
+          name: user.name,
+          avatar: user.avatar
+        }
+      };
+      console.log('Sending successful authentication response');
+      res.json(response);
+    } catch (responseError) {
+      console.error('Error sending response:', responseError);
+      res.status(500).json({ message: 'Error sending response', error: responseError instanceof Error ? responseError.message : 'Unknown response error' });
+    }
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ message: 'Registration failed', error });
+    res.status(500).json({
+      message: 'Error during Google authentication',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
-// Login existing user
-export const login = async (req: Request, res: Response): Promise<void> => {
+export const login = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
-    
-    // Validate required fields
-    if (!email || !password) {
-      res.status(400).json({ message: 'Email and password are required' });
-      return;
-    }
-    
-    // Check if user exists
+
     const user = await User.findOne({ email });
     if (!user) {
       res.status(401).json({ message: 'Invalid credentials' });
       return;
     }
-    
-    // Check password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
+
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
       res.status(401).json({ message: 'Invalid credentials' });
       return;
     }
-    
-    // Get the ID as string
-    const userId = user._id instanceof Types.ObjectId 
-      ? user._id.toString() 
-      : String(user._id);
-    
-    // Generate token
-    const token = generateToken(userId, user.email);
-    
-    // Return user data without password
-    res.status(200).json({
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.json({
       token,
       user: {
-        id: userId,
-        name: user.name,
+        id: user._id,
         email: user.email,
-        role: user.role
+        name: user.name
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Login failed', error });
+    res.status(500).json({
+      message: 'Error during authentication',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
-}; 
+};
+
+export const register = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { email, password, name } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      res.status(400).json({ message: 'User already exists' });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      email,
+      password: hashedPassword,
+      name
+    });
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.status(201).json({
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error during registration',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+export const verifyToken = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ message: 'Invalid token' });
+      return;
+    }
+
+    res.json({ valid: true, user: req.user });
+  } catch (error) {
+    res.status(401).json({ message: 'Invalid token' });
+  }
+};

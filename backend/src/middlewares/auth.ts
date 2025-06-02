@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
@@ -6,21 +6,17 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
-interface IUserPayload {
+export interface IUserPayload {
   id: string;
   email: string;
 }
 
-// Extend Express Request interface to include user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: IUserPayload;
-    }
-  }
-}
-
-export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
+// We don't declare user property here since we're extending the global Express namespace
+export const authenticate = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+): Promise<void> => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
@@ -29,9 +25,12 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
     }
     
     const decoded = jwt.verify(token, JWT_SECRET) as IUserPayload;
-    req.user = decoded;
+    
+    // Explicitly type the user property to avoid conflicts
+    (req as express.Request & { user: IUserPayload }).user = decoded;
+    
     next();
   } catch (error) {
     res.status(401).json({ message: 'Authentication required' });
   }
-}; 
+};

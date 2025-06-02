@@ -27,7 +27,7 @@ interface AuthResponse {
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     try {
-      const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
+      const response = await apiClient.post<AuthResponse>('/api/auth/login', credentials);
       return response.data;
     } catch (error: any) {
       if (error.response?.status === 401) {
@@ -39,7 +39,9 @@ export const authService = {
 
   googleLogin: async (credential: string): Promise<AuthResponse> => {
     try {
-      const response = await apiClient.post<AuthResponse>('/auth/google', { token: credential });
+      console.log('Calling backend with Google token...');
+      const response = await apiClient.post<AuthResponse>('/api/auth/google', { token: credential });
+      console.log('Backend response received:', response.data);
       return response.data;
     } catch (error: any) {
       console.error('Google login error:', error);
@@ -49,7 +51,7 @@ export const authService = {
 
   register: async (userData: RegisterData): Promise<AuthResponse> => {
     try {
-      const response = await apiClient.post<AuthResponse>('/auth/register', userData);
+      const response = await apiClient.post<AuthResponse>('/api/auth/register', userData);
       return response.data;
     } catch (error: any) {
       if (error.response?.status === 409) {

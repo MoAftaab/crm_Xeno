@@ -1,15 +1,17 @@
-import { Express } from 'express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import express from 'express';
+import path from 'path';
 
-// Swagger definition
-const options = {
+type Express = express.Application;
+
+const options: swaggerJsdoc.Options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Xeno CRM API with Gemini AI Integration',
+      title: 'Xeno CRM API',
       version: '1.0.0',
-      description: 'API documentation for Xeno CRM with Campaign Delivery and Gemini AI integration',
+      description: 'API documentation for ingesting customers and orders and managing users',
       contact: {
         name: 'Xeno CRM Team',
       },
@@ -26,14 +28,27 @@ const options = {
     servers: [
       {
         url: process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 5000}`,
+        description: 'Development server',
       },
     ],
   },
-  apis: ['./src/routes/*.ts', './src/docs/*.doc.ts'], // Path to the API routes with JSDoc
+  apis: [
+    path.resolve(__dirname, './*.doc.ts'),
+    path.resolve(__dirname, '../routes/*.ts')
+  ],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
 
 export const setupSwagger = (app: Express) => {
+  // Swagger docs endpoint
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  
+  // Endpoint to get swagger.json
+  app.get('/swagger.json', (req: express.Request, res: express.Response) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+  });
+  
+  console.log('Swagger documentation available at /api-docs');
 };

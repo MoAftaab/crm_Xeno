@@ -1,123 +1,154 @@
-import { Request, Response } from 'express';
+import { Response } from '../types/express';
+import { AuthenticatedRequest } from '../interfaces/interfaces';
+import { Types } from 'mongoose';
 import Segment, { ISegment } from '../models/Segment';
-import Customer from '../models/Customer';
 
-// Get all segments
-export const getSegments = async (req: Request, res: Response): Promise<void> => {
+export const getSegments = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const segments = await Segment.find().sort({ created_at: -1 });
-    res.status(200).json(segments);
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: 'User not authenticated' });
+      return;
+    }
+
+    const segments = await Segment.find({ userId: new Types.ObjectId(userId) });
+    res.json(segments);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching segments', error });
+    res.status(500).json({
+      message: 'Error fetching segments',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
-// Get segment by ID
-export const getSegmentById = async (req: Request, res: Response): Promise<void> => {
+export const getSegmentById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const segment = await Segment.findById(req.params.id);
-    
+    const { id } = req.params;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: 'User not authenticated' });
+      return;
+    }
+
+    if (!id || !Types.ObjectId.isValid(id)) {
+      res.status(400).json({ message: 'Invalid segment ID' });
+      return;
+    }
+
+    const segment = await Segment.findOne({
+      _id: new Types.ObjectId(id),
+      userId: new Types.ObjectId(userId)
+    });
+
     if (!segment) {
       res.status(404).json({ message: 'Segment not found' });
       return;
     }
-    
-    res.status(200).json(segment);
+
+    res.json(segment);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching segment', error });
+    res.status(500).json({
+      message: 'Error fetching segment',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
-// Create new segment
-export const createSegment = async (req: Request, res: Response): Promise<void> => {
+export const createSegment = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { name, rules } = req.body;
-    
-    if (!name || !rules) {
-      res.status(400).json({ message: 'Name and rules are required' });
+    const userId = req.user?.id;
+    const segmentData = req.body;
+
+    if (!userId) {
+      res.status(401).json({ message: 'User not authenticated' });
       return;
     }
-    
-    // Calculate audience size based on rules
-    // This is a simplified example - in a real app, you'd implement more complex rule parsing
-    let query: any = {};
-    
-    if (rules.totalSpend) {
-      query.total_spend = { $gte: rules.totalSpend };
-    }
-    
-    if (rules.visitCount) {
-      query.visit_count = { $gte: rules.visitCount };
-    }
-    
-    const audienceSize = await Customer.countDocuments(query);
-    
-    const segment = new Segment({
-      name,
-      rules,
-      audience_size: audienceSize,
-      created_at: new Date(),
-      created_by: req.user?.id || 'system'
+
+    const segment = await Segment.create({
+      ...segmentData,
+      userId: new Types.ObjectId(userId)
     });
-    
-    await segment.save();
+
     res.status(201).json(segment);
   } catch (error) {
-    res.status(500).json({ message: 'Error creating segment', error });
+    res.status(500).json({
+      message: 'Error creating segment',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
-// Update segment
-export const updateSegment = async (req: Request, res: Response): Promise<void> => {
+export const updateSegment = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const segment = await Segment.findById(req.params.id);
-    
+    const { id } = req.params;
+    const userId = req.user?.id;
+    const updates = req.body;
+
+    if (!userId) {
+      res.status(401).json({ message: 'User not authenticated' });
+      return;
+    }
+
+    if (!id || !Types.ObjectId.isValid(id)) {
+      res.status(400).json({ message: 'Invalid segment ID' });
+      return;
+    }
+
+    const segment = await Segment.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(id),
+        userId: new Types.ObjectId(userId)
+      },
+      updates,
+      { new: true }
+    );
+
     if (!segment) {
       res.status(404).json({ message: 'Segment not found' });
       return;
     }
-    
-    const { name, rules } = req.body;
-    
-    if (name) segment.name = name;
-    
-    if (rules) {
-      segment.rules = rules;
-      
-      // Recalculate audience size based on updated rules
-      let query: any = {};
-      
-      if (rules.totalSpend) {
-        query.total_spend = { $gte: rules.totalSpend };
-      }
-      
-      if (rules.visitCount) {
-        query.visit_count = { $gte: rules.visitCount };
-      }
-      
-      segment.audience_size = await Customer.countDocuments(query);
-    }
-    
-    await segment.save();
-    res.status(200).json(segment);
+
+    res.json(segment);
   } catch (error) {
-    res.status(500).json({ message: 'Error updating segment', error });
+    res.status(500).json({
+      message: 'Error updating segment',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
-// Delete segment
-export const deleteSegment = async (req: Request, res: Response): Promise<void> => {
+export const deleteSegment = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const segment = await Segment.findById(req.params.id);
-    
+    const { id } = req.params;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: 'User not authenticated' });
+      return;
+    }
+
+    if (!id || !Types.ObjectId.isValid(id)) {
+      res.status(400).json({ message: 'Invalid segment ID' });
+      return;
+    }
+
+    const segment = await Segment.findOneAndDelete({
+      _id: new Types.ObjectId(id),
+      userId: new Types.ObjectId(userId)
+    });
+
     if (!segment) {
       res.status(404).json({ message: 'Segment not found' });
       return;
     }
-    
-    await Segment.deleteOne({ _id: req.params.id });
-    res.status(200).json({ message: 'Segment deleted successfully' });
+
+    res.json({ message: 'Segment deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Error deleting segment', error });
+    res.status(500).json({
+      message: 'Error deleting segment',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
-}; 
+};

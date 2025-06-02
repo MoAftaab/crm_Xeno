@@ -15,7 +15,7 @@ export interface SegmentData {
   conditions: Array<{
     field: string;
     operator: string;
-    value: string;
+    value: string | number | boolean;
   }>;
   customerCount?: number;
 }

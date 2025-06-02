@@ -1,5 +1,14 @@
 {
+  "scripts": {
+    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev"
+  },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "ts-node-dev": "^2.0.0"
+  },
+  "dependencies": {
+    "google-auth-library": "^9.15.1"
   }
 }

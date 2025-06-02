@@ -1,24 +1,34 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ICommunicationLog extends Document {
-  campaign_id: mongoose.Types.ObjectId;
-  customer_id: mongoose.Types.ObjectId;
-  message: string;
-  status: string;
-  sent_at: Date;
-  updated_at: Date;
+  campaignId: mongoose.Types.ObjectId;
+  customerId: mongoose.Types.ObjectId;
+  status: 'delivered' | 'failed';
+  error?: string;
+  timestamp: Date;
 }
 
-const CommunicationLogSchema: Schema = new Schema(
-  {
-    campaign_id: { type: Schema.Types.ObjectId, ref: 'Campaign', required: true },
-    customer_id: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
-    message: { type: String, required: true },
-    status: { type: String, enum: ['sent', 'delivered', 'failed'], default: 'sent' },
-    sent_at: { type: Date, default: Date.now },
-    updated_at: { type: Date, default: Date.now }
+const CommunicationLogSchema = new Schema({
+  campaignId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Campaign',
+    required: true
   },
-  { timestamps: true }
-);
+  customerId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Customer',
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['delivered', 'failed'],
+    required: true
+  },
+  error: String,
+  timestamp: {
+    type: Date,
+    default: Date.now
+  }
+});
 
-export default mongoose.model<ICommunicationLog>('CommunicationLog', CommunicationLogSchema); 
+export default mongoose.model<ICommunicationLog>('CommunicationLog', CommunicationLogSchema);

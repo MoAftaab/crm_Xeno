@@ -1,137 +1,235 @@
-import { Request, Response } from 'express';
+import { Response } from '../types/express';
+import { AuthenticatedRequest } from '../interfaces/interfaces';
 import Campaign from '../models/Campaign';
+import { validateCampaign } from '../services/campaignService';
 
-// Get all campaigns
-export const getCampaigns = async (req: Request, res: Response): Promise<void> => {
+export const createCampaign = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const campaigns = await Campaign.find().sort({ createdAt: -1 });
+    const { name, type, rules, schedule } = req.body;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: 'User not authenticated' });
+      return;
+    }
+
+    // Validate campaign data
+    const validationResult = validateCampaign(req.body);
+    if (!validationResult.isValid) {
+      res.status(400).json({ message: validationResult.errors });
+      return;
+    }
+
+    const campaign = await Campaign.create({
+      name,
+      type,
+      rules,
+      schedule,
+      userId,
+      status: 'draft'
+    });
+
+    res.status(201).json(campaign);
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error creating campaign',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+export const getCampaigns = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: 'User not authenticated' });
+      return;
+    }
+
+    const campaigns = await Campaign.find({ userId });
     res.json(campaigns);
   } catch (error) {
-    console.error('Error fetching campaigns:', error);
-    res.status(500).json({ message: 'Failed to fetch campaigns' });
+    res.status(500).json({
+      message: 'Error fetching campaigns',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
-// Get campaign by ID
-export const getCampaignById = async (req: Request, res: Response): Promise<void> => {
+export const getCampaignById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const campaign = await Campaign.findById(req.params.id);
+    const { id } = req.params;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: 'User not authenticated' });
+      return;
+    }
+
+    const campaign = await Campaign.findOne({ _id: id, userId });
     
     if (!campaign) {
       res.status(404).json({ message: 'Campaign not found' });
       return;
     }
-    
+
     res.json(campaign);
   } catch (error) {
-    console.error('Error fetching campaign:', error);
-    res.status(500).json({ message: 'Failed to fetch campaign' });
+    res.status(500).json({
+      message: 'Error fetching campaign',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
-// Create new campaign
-export const createCampaign = async (req: Request, res: Response): Promise<void> => {
+export const updateCampaign = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const newCampaign = new Campaign(req.body);
-    const savedCampaign = await newCampaign.save();
-    res.status(201).json(savedCampaign);
-  } catch (error) {
-    console.error('Error creating campaign:', error);
-    res.status(500).json({ message: 'Failed to create campaign' });
-  }
-};
+    const { id } = req.params;
+    const userId = req.user?.id;
+    const updates = req.body;
 
-// Update campaign
-export const updateCampaign = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const updatedCampaign = await Campaign.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
+    if (!userId) {
+      res.status(401).json({ message: 'User not authenticated' });
+      return;
+    }
+
+    // Validate campaign updates
+    const validationResult = validateCampaign(updates);
+    if (!validationResult.isValid) {
+      res.status(400).json({ message: validationResult.errors });
+      return;
+    }
+
+    const campaign = await Campaign.findOneAndUpdate(
+      { _id: id, userId },
+      updates,
+      { new: true }
     );
-    
-    if (!updatedCampaign) {
+
+    if (!campaign) {
       res.status(404).json({ message: 'Campaign not found' });
       return;
     }
-    
-    res.json(updatedCampaign);
+
+    res.json(campaign);
   } catch (error) {
-    console.error('Error updating campaign:', error);
-    res.status(500).json({ message: 'Failed to update campaign' });
+    res.status(500).json({
+      message: 'Error updating campaign',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
-// Delete campaign
-export const deleteCampaign = async (req: Request, res: Response): Promise<void> => {
+export const deleteCampaign = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const deletedCampaign = await Campaign.findByIdAndDelete(req.params.id);
-    
-    if (!deletedCampaign) {
+    const { id } = req.params;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: 'User not authenticated' });
+      return;
+    }
+
+    const campaign = await Campaign.findOneAndDelete({ _id: id, userId });
+
+    if (!campaign) {
       res.status(404).json({ message: 'Campaign not found' });
       return;
     }
-    
+
     res.json({ message: 'Campaign deleted successfully' });
   } catch (error) {
-    console.error('Error deleting campaign:', error);
-    res.status(500).json({ message: 'Failed to delete campaign' });
+    res.status(500).json({
+      message: 'Error deleting campaign',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
-// Launch campaign
-export const launchCampaign = async (req: Request, res: Response): Promise<void> => {
+/**
+ * Launch a campaign (start delivery/execution)
+ */
+export const launchCampaign = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const campaign = await Campaign.findById(req.params.id);
-    
+    const { id } = req.params;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: 'User not authenticated' });
+      return;
+    }
+
+    const campaign = await Campaign.findOne({ _id: id, userId });
+
     if (!campaign) {
       res.status(404).json({ message: 'Campaign not found' });
       return;
     }
-    
+
     // Update campaign status to active
     campaign.status = 'active';
-    
-    // Set launch time to now if not already scheduled
-    if (!campaign.scheduledAt) {
-      campaign.scheduledAt = new Date();
-    }
-    
     await campaign.save();
-    
-    // Here you would typically trigger the actual message sending process,
-    // which could use a message queue or other async process
-    
-    res.json(campaign);
+
+    // Here you would typically trigger the actual delivery mechanism
+    // e.g., send to a message queue, schedule with a job scheduler, etc.
+
+    res.json({
+      message: 'Campaign launched successfully',
+      campaign
+    });
   } catch (error) {
-    console.error('Error launching campaign:', error);
-    res.status(500).json({ message: 'Failed to launch campaign' });
+    res.status(500).json({
+      message: 'Error launching campaign',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
-// Get campaign statistics
-export const getCampaignStats = async (req: Request, res: Response): Promise<void> => {
+/**
+ * Get campaign performance statistics
+ */
+export const getCampaignStats = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const campaign = await Campaign.findById(req.params.id);
-    
+    const { id } = req.params;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: 'User not authenticated' });
+      return;
+    }
+
+    const campaign = await Campaign.findOne({ _id: id, userId });
+
     if (!campaign) {
       res.status(404).json({ message: 'Campaign not found' });
       return;
     }
-    
-    // In a real application, you would fetch actual stats from your database
-    // This is just a placeholder
+
+    // Here you would typically fetch actual campaign stats from your analytics system
+    // This is a placeholder implementation
     const stats = {
-      sent: campaign.deliveryStatus?.sent || 0,
-      delivered: (campaign.deliveryStatus?.sent || 0) - (campaign.deliveryStatus?.failed || 0),
-      failed: campaign.deliveryStatus?.failed || 0,
-      opened: Math.floor((campaign.deliveryStatus?.sent || 0) * 0.7), // Dummy data: 70% open rate
-      clicked: Math.floor((campaign.deliveryStatus?.sent || 0) * 0.3), // Dummy data: 30% click rate
+      sent: 1250,
+      delivered: 1200,
+      opened: 850,
+      clicked: 420,
+      converted: 75,
+      bounced: 50,
+      unsubscribed: 15,
+      openRate: 70.8,
+      clickRate: 35.0,
+      conversionRate: 6.3
     };
-    
-    res.json(stats);
+
+    res.json({
+      campaignId: id,
+      campaignName: campaign.name,
+      stats
+    });
   } catch (error) {
-    console.error('Error fetching campaign stats:', error);
-    res.status(500).json({ message: 'Failed to fetch campaign statistics' });
+    res.status(500).json({
+      message: 'Error retrieving campaign statistics',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
-}; 
+};

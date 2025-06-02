@@ -2,7 +2,34 @@ import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { segmentService, Segment, SegmentInput } from '../services/segment-service';
 import { Customer } from '../services/customer-service';
 
+// Individual segment hook for single segment pages
+export const useSegment = (id: string) => {
+  const segmentQuery = useQuery(
+    ['segment', id],
+    () => segmentService.getSegmentById(id),
+    { enabled: !!id }
+  );
+  
+  const customersQuery = useQuery(
+    ['segment', id, 'customers'],
+    () => segmentService.getCustomersInSegment(id),
+    { enabled: !!id }
+  );
+  
+  return {
+    segment: segmentQuery.data,
+    customers: customersQuery.data,
+    isLoading: segmentQuery.isLoading || customersQuery.isLoading,
+    isError: segmentQuery.isError || customersQuery.isError,
+    error: segmentQuery.error || customersQuery.error,
+  };
+};
+
 export const useSegments = () => {
+  // Get segments data directly
+  const segmentsQuery = useQuery('segments', segmentService.getSegments);
+  const segments = segmentsQuery.data;
+  const isLoading = segmentsQuery.isLoading;
   const queryClient = useQueryClient();
 
   // Get all segments
@@ -64,6 +91,8 @@ export const useSegments = () => {
   };
 
   return {
+    segments,
+    isLoading,
     getSegments,
     getSegmentById,
     createSegment,

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useSegments } from '@/hooks/useSegments';
 import { SegmentCondition } from '@/services/segment-service';
-import { ChevronLeft, Loader2, PlusCircle, Save, X, Filter, Users, Lightning } from 'lucide-react';
+import { ChevronLeft, Loader2, PlusCircle, Save, X, Filter, Users, Zap } from 'lucide-react';
 
 // Available fields for segment conditions
 const FIELD_OPTIONS = [
@@ -78,7 +78,7 @@ export default function CreateSegmentPage() {
       newConditions[index] = {
         ...newConditions[index],
         field: value,
-        operator: OPERATOR_OPTIONS[fieldType as keyof typeof OPERATOR_OPTIONS][0].value,
+        operator: OPERATOR_OPTIONS[fieldType as keyof typeof OPERATOR_OPTIONS][0].value as SegmentCondition['operator'],
         value: '',
       };
     } else {
@@ -283,7 +283,7 @@ export default function CreateSegmentPage() {
                     
                     <div className="p-4 border border-gray-800 rounded-lg bg-purple-900/10">
                       <div className="flex items-start">
-                        <Lightning className="w-5 h-5 text-purple-400 mr-3 mt-0.5" />
+                        <Zap className="w-5 h-5 text-purple-400 mr-3 mt-0.5" />
                         <div>
                           <p className="text-sm font-medium text-purple-300">Tip: Create Effective Segments</p>
                           <p className="text-xs text-gray-300 mt-1">

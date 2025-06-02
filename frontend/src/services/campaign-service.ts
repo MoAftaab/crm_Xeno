@@ -11,6 +11,8 @@ export interface Campaign {
   status: 'draft' | 'scheduled' | 'active' | 'completed' | 'failed';
   scheduledAt?: string;
   sentCount?: number;
+  recipients?: number;
+  openRate?: string;
   deliveryStatus?: {
     sent: number;
     failed: number;
@@ -31,31 +33,31 @@ export interface CampaignInput {
 
 export const campaignService = {
   getCampaigns: async (): Promise<Campaign[]> => {
-    const response = await apiClient.get<Campaign[]>('/campaigns');
+    const response = await apiClient.get<Campaign[]>('campaigns');
     return response.data;
   },
 
   getCampaignById: async (id: string): Promise<Campaign> => {
-    const response = await apiClient.get<Campaign>(`/campaigns/${id}`);
+    const response = await apiClient.get<Campaign>(`campaigns/${id}`);
     return response.data;
   },
 
   createCampaign: async (campaign: CampaignInput): Promise<Campaign> => {
-    const response = await apiClient.post<Campaign>('/campaigns', campaign);
+    const response = await apiClient.post<Campaign>('campaigns', campaign);
     return response.data;
   },
 
   updateCampaign: async (id: string, campaign: Partial<CampaignInput>): Promise<Campaign> => {
-    const response = await apiClient.put<Campaign>(`/campaigns/${id}`, campaign);
+    const response = await apiClient.put<Campaign>(`campaigns/${id}`, campaign);
     return response.data;
   },
 
   deleteCampaign: async (id: string): Promise<void> => {
-    await apiClient.delete(`/campaigns/${id}`);
+    await apiClient.delete(`campaigns/${id}`);
   },
   
   launchCampaign: async (id: string): Promise<Campaign> => {
-    const response = await apiClient.post<Campaign>(`/campaigns/${id}/launch`, {});
+    const response = await apiClient.post<Campaign>(`campaigns/${id}/launch`, {});
     return response.data;
   },
   
@@ -66,7 +68,7 @@ export const campaignService = {
     opened: number;
     clicked: number;
   }> => {
-    const response = await apiClient.get(`/campaigns/${id}/stats`);
+    const response = await apiClient.get(`campaigns/${id}/stats`);
     return response.data;
   },
   

@@ -1,16 +1,19 @@
-# Xeno CRM - Advanced Customer Relationship Management Platform
+# Xeno CRM - Advanced Customer Relationship Management System
 
 <div align="center">
   <img src="https://img.shields.io/badge/Node.js-v18.0.0-green" />
   <img src="https://img.shields.io/badge/Express-v4.18.2-blue" />
-  <img src="https://img.shields.io/badge/Next.js-v13.0.0-black" />
+  <img src="https://img.shields.io/badge/React-v18.0.0-blue" />
   <img src="https://img.shields.io/badge/MongoDB-v6.0-green" />
+  <img src="https://img.shields.io/badge/Mongoose-v7.0.0-brown" />
+  <img src="https://img.shields.io/badge/Next.js-v13.0.0-black" />
   <img src="https://img.shields.io/badge/TypeScript-v5.0.0-blue" />
   <img src="https://img.shields.io/badge/JWT-Authentication-yellow" />
-  <img src="https://img.shields.io/badge/Swagger-Documentation-green" />
   <img src="https://img.shields.io/badge/Gemini%20AI-Integration-purple" />
+  <img src="https://img.shields.io/badge/Swagger-Documentation-green" />
 </div>
 
+ 
 ## Table of Contents
 - [System Architecture](#system-architecture)
 - [Dashboard Preview](#dashboard-preview)
@@ -26,11 +29,11 @@
 
 The Xeno CRM architecture follows a modern full-stack approach with clear separation of concerns:
 
-- **Frontend**: Next.js-based UI with React components and hooks for state management
-- **Backend**: Express.js API server with dedicated controllers and services
-- **Data Layer**: MongoDB for persistent storage with Mongoose ODM
-- **Caching**: Redis for performance optimization
-- **External Services**: Integration with AI APIs and message delivery providers
+- *Frontend*: Next.js-based UI with React components and hooks for state management
+- *Backend*: Express.js API server with dedicated controllers and services
+- *Data Layer*: MongoDB for persistent storage with Mongoose ODM
+- *Caching*: Redis for performance optimization
+- *External Services*: Integration with AI APIs and message delivery providers
 
 ## Dashboard Preview
 
@@ -56,9 +59,9 @@ A detailed landing page is available in the repository as a PDF document ([local
 - Order status updates
 
 ### Data Ingestion APIs
-- Secure CSV import for customers via `POST /api/data/import/customers`
-- Secure CSV import for orders via `POST /api/data/import/orders`
-- Sample CSV templates via `GET /api/data/samples/customer` and `GET /api/data/samples/order`
+- Secure CSV import for customers via POST /api/data/import/customers
+- Secure CSV import for orders via POST /api/data/import/orders
+- Sample CSV templates via GET /api/data/samples/customer and GET /api/data/samples/order
 - Comprehensive validation with detailed error reporting
 - Support for partial success (HTTP 207) when some rows fail but others succeed
 
@@ -72,7 +75,7 @@ A detailed landing page is available in the repository as a PDF document ([local
 - Comprehensive Swagger/OpenAPI documentation
 - Interactive API testing through Swagger UI
 - Detailed request/response schemas
-- API accessible at `/api-docs` endpoint
+- API accessible at /api-docs endpoint
 
 ### Campaign Management
 - Campaign creation and tracking
@@ -102,35 +105,35 @@ A detailed landing page is available in the repository as a PDF document ([local
 ## Tech Stack
 
 ### Frontend
-- **Next.js**: For server-side rendering and routing
-- **TypeScript**: For type safety
-- **Tailwind CSS**: For responsive UI design
-- **React Query**: For data fetching and caching
-- **Context API**: For state management
+- *Next.js*: For server-side rendering and routing
+- *TypeScript*: For type safety
+- *Tailwind CSS*: For responsive UI design
+- *React Query*: For data fetching and caching
+- *Context API*: For state management
 
 ### Backend
-- **Node.js**: Runtime environment
-- **Express.js**: Web framework
-- **TypeScript**: For type safety
-- **MongoDB**: Database
-- **Mongoose**: ODM for MongoDB
-- **Redis**: For caching and message queues
-- **JWT**: For authentication
-- **Swagger/OpenAPI**: For API documentation
-- **Multer**: For file uploads
-- **CSV Parser**: For CSV data processing
+- *Node.js*: Runtime environment
+- *Express.js*: Web framework
+- *TypeScript*: For type safety
+- *MongoDB*: Database
+- *Mongoose*: ODM for MongoDB
+- *Redis*: For caching and message queues
+- *JWT*: For authentication
+- *Swagger/OpenAPI*: For API documentation
+- *Multer*: For file uploads
+- *CSV Parser*: For CSV data processing
 
 ### AI & Delivery
-- **Gemini AI API**: For intelligent content generation
-- **Redis Streams**: For message queuing
-- **Batch Processing**: For efficient message delivery
-- **Webhook Handlers**: For delivery receipts
+- *Gemini AI API*: For intelligent content generation
+- *Redis Streams*: For message queuing
+- *Batch Processing*: For efficient message delivery
+- *Webhook Handlers*: For delivery receipts
 
 ### Enhanced Swagger Documentation
 
 Added comprehensive API documentation using Swagger UI for all endpoints:
 
-- **Features**:
+- *Features*:
   - Detailed request/response schemas
   - Authentication requirements
   - Sample request bodies
@@ -152,63 +155,63 @@ Added comprehensive API documentation using Swagger UI for all endpoints:
 
 ## API Documentation
 
-The API is fully documented using Swagger/OpenAPI and can be accessed at `/api-docs` when the server is running.
+The API is fully documented using Swagger/OpenAPI and can be accessed at /api-docs when the server is running.
 
 ### Key API Endpoints
 
 #### Authentication
-- `POST /api/auth/login`: User login
-- `POST /api/auth/register`: User registration
+- POST /api/auth/login: User login
+- POST /api/auth/register: User registration
 
 #### Customers
-- `GET /api/customers`: List customers
-- `POST /api/customers`: Create customer
-- `GET /api/customers/:id`: Get customer details
-- `PUT /api/customers/:id`: Update customer
-- `DELETE /api/customers/:id`: Delete customer
+- GET /api/customers: List customers
+- POST /api/customers: Create customer
+- GET /api/customers/:id: Get customer details
+- PUT /api/customers/:id: Update customer
+- DELETE /api/customers/:id: Delete customer
 
 #### Orders
-- `GET /api/orders`: List orders
-- `POST /api/orders`: Create order
-- `GET /api/orders/:id`: Get order details
-- `PUT /api/orders/:id`: Update order
-- `DELETE /api/orders/:id`: Delete order
+- GET /api/orders: List orders
+- POST /api/orders: Create order
+- GET /api/orders/:id: Get order details
+- PUT /api/orders/:id: Update order
+- DELETE /api/orders/:id: Delete order
 
 #### Data Import
-- `POST /api/data/import/customers`: Import customers via CSV
-- `POST /api/data/import/orders`: Import orders via CSV
-- `GET /api/data/samples/customer`: Download customer CSV template
-- `GET /api/data/samples/order`: Download order CSV template
+- POST /api/data/import/customers: Import customers via CSV
+- POST /api/data/import/orders: Import orders via CSV
+- GET /api/data/samples/customer: Download customer CSV template
+- GET /api/data/samples/order: Download order CSV template
 
 #### Segments
-- `GET /api/segments`: List segments
-- `POST /api/segments`: Create segment
-- `GET /api/segments/:id`: Get segment details
-- `PUT /api/segments/:id`: Update segment
-- `DELETE /api/segments/:id`: Delete segment
-- `GET /api/segments/:id/customers`: Get customers in segment
+- GET /api/segments: List segments
+- POST /api/segments: Create segment
+- GET /api/segments/:id: Get segment details
+- PUT /api/segments/:id: Update segment
+- DELETE /api/segments/:id: Delete segment
+- GET /api/segments/:id/customers: Get customers in segment
 
 #### Campaigns
-- `GET /api/campaigns`: List campaigns
-- `POST /api/campaigns`: Create campaign
-- `GET /api/campaigns/:id`: Get campaign details
-- `PUT /api/campaigns/:id`: Update campaign
-- `DELETE /api/campaigns/:id`: Delete campaign
-- `POST /api/campaigns/:id/schedule`: Schedule campaign
-- `GET /api/campaigns/:id/stats`: Get campaign statistics
+- GET /api/campaigns: List campaigns
+- POST /api/campaigns: Create campaign
+- GET /api/campaigns/:id: Get campaign details
+- PUT /api/campaigns/:id: Update campaign
+- DELETE /api/campaigns/:id: Delete campaign
+- POST /api/campaigns/:id/schedule: Schedule campaign
+- GET /api/campaigns/:id/stats: Get campaign statistics
 
 #### AI
-- `POST /api/ai/generate-message`: Generate campaign message
-- `POST /api/ai/suggest-schedule`: Get AI scheduling suggestions
+- POST /api/ai/generate-message: Generate campaign message
+- POST /api/ai/suggest-schedule: Get AI scheduling suggestions
 
 #### Delivery
-- `GET /api/delivery/stats`: Get delivery statistics
-- `POST /api/delivery/webhook`: Webhook for delivery receipts
+- GET /api/delivery/stats: Get delivery statistics
+- POST /api/delivery/webhook: Webhook for delivery receipts
 
 ## Project Structure
 
 ### Frontend Structure
-```
+
 frontend/
 ├── src/
 │   ├── app/                  # Next.js 13+ app directory
@@ -225,10 +228,10 @@ frontend/
 │   ├── services/             # API service layers
 │   ├── styles/               # Global styles and themes
 │   └── lib/                  # Utilities and helpers
-```
+
 
 ### Backend Structure
-```
+
 backend/
 ├── src/
 │   ├── config/               # Configuration files
@@ -286,7 +289,7 @@ backend/
 │       ├── errors.ts         # Error handling utilities
 │       └── helpers.ts        # Helper functions
 └── index.ts                  # Application entry point
-```
+
 
 ## Getting Started
 
@@ -296,7 +299,7 @@ backend/
 - Redis (optional, falls back to in-memory cache)
 
 ### Backend Setup
-```bash
+bash
 # Navigate to backend directory
 cd backend
 
@@ -308,10 +311,10 @@ cp .env.example .env
 
 # Start development server
 npm run dev
-```
+
 
 ### Frontend Setup
-```bash
+bash
 # Navigate to frontend directory
 cd frontend
 
@@ -323,23 +326,22 @@ cp .env.example .env.local
 
 # Start development server
 npm run dev
-```
+
 
 ### Environment Variables
 
 #### Backend (.env)
-```
+
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/xeno_crm
 JWT_SECRET=your_jwt_secret
-REDIS_URL=redis://localhost:6379
 GEMINI_API_KEY=your_gemini_api_key
-```
+
 
 #### Frontend (.env.local)
-```
+
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
-```
+
 
 ---
 

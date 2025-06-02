@@ -1,23 +1,19 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
+import bcrypt from 'bcryptjs';
 
-export interface UserDocument extends Document {
-  name: string;
+export interface IUser extends Document {
   email: string;
   password: string;
-  companyName?: string;
-  role: 'admin' | 'user';
-  googleId?: string;  // For Google authentication
-  picture?: string;   // Profile picture URL
+  name: string;
   createdAt: Date;
-  updatedAt: Date;
+  lastLogin?: Date;
+  isActive: boolean;
+  avatar?: string;
+  googleId?: string;
+  comparePassword(password: string): Promise<boolean>;
 }
 
-const userSchema = new Schema<UserDocument>({
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  },
+const UserSchema = new Schema({
   email: {
     type: String,
     required: true,
@@ -29,29 +25,39 @@ const userSchema = new Schema<UserDocument>({
     type: String,
     required: true
   },
-  companyName: {
+  name: {
     type: String,
-    default: ''
+    required: true,
+    trim: true
   },
-  role: {
-    type: String,
-    enum: ['admin', 'user'],
-    default: 'user'
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  lastLogin: {
+    type: Date
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  avatar: {
+    type: String
   },
   googleId: {
-    type: String,
-    sparse: true,
-    index: true
-  },
-  picture: {
-    type: String,
-    default: ''
+    type: String
   }
-}, {
-  timestamps: true
 });
 
-// Create index on email for faster lookups
-userSchema.index({ email: 1 });
+UserSchema.pre<IUser>('save', async function(next) {
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
+});
 
-export default mongoose.model<UserDocument>('User', userSchema); 
+UserSchema.methods.comparePassword = async function(password: string): Promise<boolean> {
+  return bcrypt.compare(password, this.password);
+};
+
+export default mongoose.model<IUser>('User', UserSchema);

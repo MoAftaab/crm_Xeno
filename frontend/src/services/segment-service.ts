@@ -9,6 +9,7 @@ export interface SegmentCondition {
 
 export interface Segment {
   id: string;
+  _id?: string; // MongoDB style ID sometimes used instead of id
   name: string;
   description?: string;
   conditions: SegmentCondition[];

@@ -10,16 +10,18 @@ import {
 import { Button } from '@/components/ui/button';
 import { useAnalyzeSegment, SegmentData } from '@/hooks/useAI';
 import { Sparkles, RefreshCw, Loader2 } from 'lucide-react';
+import { Segment, SegmentCondition } from '@/services/segment-service';
 
 interface SegmentInsightsProps {
-  segment: {
-    _id: string;
+  segment: Segment | {
+    _id?: string;
+    id?: string;
     name: string;
     description?: string;
     conditions: Array<{
       field: string;
       operator: string;
-      value: string;
+      value: string | number | boolean;
     }>;
     customerCount?: number;
   };
@@ -34,10 +36,17 @@ const SegmentInsights: React.FC<SegmentInsightsProps> = ({ segment }) => {
   } = useAnalyzeSegment();
   
   const handleAnalyze = () => {
+    // Convert conditions to ensure they match the SegmentData interface
+    const mappedConditions = segment.conditions.map(condition => ({
+      field: condition.field,
+      operator: condition.operator,
+      value: condition.value
+    }));
+    
     const segmentData: SegmentData = {
       name: segment.name,
       description: segment.description,
-      conditions: segment.conditions,
+      conditions: mappedConditions,
       customerCount: segment.customerCount
     };
     
