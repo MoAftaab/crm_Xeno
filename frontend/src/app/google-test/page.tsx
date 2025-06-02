@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
+import { default as dynamicImport } from 'next/dynamic';
 
-// Add metadata to prevent static generation
-export const dynamicParams = 'force-dynamic';
+// Add correct segment configuration
+export const dynamic = true;
 export const runtime = 'edge';
 
 // Dynamically import the GoogleAuthClient component to prevent SSR issues
-const GoogleAuthClient = dynamic(
+const GoogleAuthClient = dynamicImport(
   () => import('./GoogleAuthClient'),
   { ssr: false }
 );
