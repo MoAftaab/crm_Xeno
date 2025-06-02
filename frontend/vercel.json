@@ -1,0 +1,18 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "installCommand": "npm install",
+  "outputDirectory": ".next",
+  "regions": ["iad1"],
+  "routes": [
+    {
+      "src": "/google-test",
+      "dest": "/login"
+    }
+  ],
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_GOOGLE_CLIENT_ID": "527849281978-phiunv6mm42akm59kha90cvqallo9do8.apps.googleusercontent.com"
+    }
+  }
+}

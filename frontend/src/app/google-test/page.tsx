@@ -1,5 +1,6 @@
-// Use App directory dynamic mode
+// Use App directory dynamic mode, but not edge runtime
 export const dynamic = 'force-dynamic';
+// Removing edge runtime to avoid build issues
 
 // Skip creating the Google test page entirely
 export default function GoogleTestPage() {

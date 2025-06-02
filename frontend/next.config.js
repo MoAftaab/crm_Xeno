@@ -1,12 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Output configuration for static export
-  output: 'export',
-  distDir: 'out',
+  // We need to use the server-side rendering approach instead of static export
+  // because we have pages with dynamic = 'force-dynamic'
   
-  // Ensure images are properly handled
+  // Image configuration for Next.js
   images: {
-    unoptimized: true,
+    domains: ['lh3.googleusercontent.com'],
   },
 };
 
