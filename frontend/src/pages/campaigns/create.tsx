@@ -178,4 +178,11 @@ const CreateCampaign: NextPage = () => {
   );
 };
 
+// Add this function to prevent static generation and ensure React Query works correctly
+export async function getServerSideProps() {
+  return {
+    props: {}, // Will be passed to the page component as props
+  };
+}
+
 export default CreateCampaign; 
