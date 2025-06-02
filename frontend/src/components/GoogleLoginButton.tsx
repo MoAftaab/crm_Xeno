@@ -1,6 +1,6 @@
 'use client';
 
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { authService } from '@/services/auth-service';
@@ -62,14 +62,36 @@ export default function GoogleLoginButton() {
     toast.error('Google sign-in failed. Please try again.');
   };
 
+  // Get Google client ID from environment variables or use fallback
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 
+    '527849281978-phiunv6mm42akm59kha90cvqallo9do8.apps.googleusercontent.com';
+
   return (
-    <GoogleLogin
-      onSuccess={handleSuccess}
-      onError={handleFailure}
-      theme="filled_black"
-      shape="pill"
-      text="signin_with"
-      size="large"
-    />
+    <div className="w-full">
+      {isLoading ? (
+        <button
+          disabled
+          className="flex items-center justify-center w-full py-2 px-4 mb-4 rounded-md border bg-gray-800 border-gray-700 cursor-not-allowed transition-colors duration-300"
+        >
+          <div className="flex items-center space-x-2">
+            <div className="animate-spin h-5 w-5 border-2 border-blue-500 rounded-full border-t-transparent"></div>
+            <span>Signing in...</span>
+          </div>
+        </button>
+      ) : (
+        <GoogleOAuthProvider clientId={googleClientId}>
+          <GoogleLogin
+            onSuccess={handleSuccess}
+            onError={handleFailure}
+            theme="filled_black"
+            shape="pill"
+            text="signin_with"
+            useOneTap={false}
+            size="large"
+            width="100%"
+          />
+        </GoogleOAuthProvider>
+      )}
+    </div>
   );
 }

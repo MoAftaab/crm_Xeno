@@ -26,15 +26,22 @@ export function Providers({ children }: ProvidersProps) {
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 
     '527849281978-phiunv6mm42akm59kha90cvqallo9do8.apps.googleusercontent.com';
 
-  // Check if we're running in the browser
-  const isBrowser = typeof window !== 'undefined';
+  // React component for wrapping content with GoogleOAuthProvider only on the client side
+  function ClientSideGoogleProvider({ children }: { children: ReactNode }) {
+    // This component will only be rendered on the client side
+    return (
+      <GoogleOAuthProvider clientId={googleClientId}>
+        {children}
+      </GoogleOAuthProvider>
+    );
+  }
   
-  // Conditional rendering based on client/server environment
-  const content = isBrowser ? (
-    <GoogleOAuthProvider clientId={googleClientId}>
+  // On the server, we skip the GoogleOAuthProvider entirely
+  const content = typeof window === 'undefined' ? children : (
+    <ClientSideGoogleProvider>
       {children}
-    </GoogleOAuthProvider>
-  ) : children;
+    </ClientSideGoogleProvider>
+  );
 
   return (
     <QueryClientProvider client={queryClient}>

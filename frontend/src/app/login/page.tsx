@@ -3,8 +3,17 @@
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
-import GoogleLoginButton from '@/components/GoogleLoginButton';
 import { toast } from 'react-hot-toast';
+import { default as dynamicImport } from 'next/dynamic';
+
+// Add segment configuration to prevent static generation
+export const dynamic = 'force-dynamic';
+
+// Dynamically import GoogleLoginButton to prevent SSR issues
+const GoogleLoginButton = dynamicImport(
+  () => import('@/components/GoogleLoginButton'),
+  { ssr: false }
+);
 
 export default function LoginPage() {
   const { googleLogin } = useAuth();
