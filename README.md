@@ -219,20 +219,18 @@ frontend/
 │   │   │   ├── customers/    # Customer management pages
 │   │   │   ├── orders/       # Order management pages
 │   │   │   ├── campaigns/    # Campaign management pages
-│   │   │   ├── segments/     # Segment management pages
+│   │   │   ├── segment-rules/# Segmentation rules pages
+│   │   │   ├── segments/     # Segments management pages
+│   │   │   ├── import/       # Data import pages
 │   │   │   ├── analytics/    # Analytics dashboard pages
 │   │   │   └── settings/     # Settings pages
 │   ├── components/           # Reusable UI components
-│   ├── config/               # Frontend configuration
 │   ├── contexts/             # React contexts
 │   ├── hooks/                # Custom React hooks
-│   ├── lib/                  # Utilities and helpers
-│   ├── pages/                # Next.js pages (legacy)
 │   ├── services/             # API service layers
-│   │   ├── data-service.ts   # Data import services
-│   │   ├── campaign-service.ts # Campaign-related services
-│   │   └── (other services)
-│   └── styles/               # Global styles and themes
+│   ├── styles/               # Global styles and themes
+│   └── lib/                  # Utilities and helpers
+
 
 ### Backend Structure
 
@@ -240,22 +238,30 @@ backend/
 ├── src/
 │   ├── config/               # Configuration files
 │   │   ├── db.ts             # Database configuration
+│   │   ├── redis.ts          # Redis configuration
 │   │   └── swagger.ts        # Swagger configuration
 │   ├── controllers/          # Route controllers
-│   │   ├── aiController.ts       # AI controller
-│   │   ├── authController.ts     # Authentication controller
-│   │   ├── campaignController.ts # Campaign controller
+│   │   ├── authController.ts # Authentication controller
 │   │   ├── customerController.ts # Customer controller
-│   │   ├── deliveryController.ts # Delivery controller
-│   │   ├── importController.ts   # Import controller
 │   │   ├── orderController.ts    # Order controller
+│   │   ├── campaignController.ts # Campaign controller
 │   │   ├── segmentController.ts  # Segment controller
+│   │   ├── aiController.ts       # AI controller
+│   │   ├── deliveryController.ts # Delivery controller
 │   │   └── uploadController.ts   # File upload controller
 │   ├── docs/                 # API documentation
-│   │   └── swagger.ts        # Swagger setup
+│   │   ├── swagger.ts        # Swagger setup
+│   │   ├── ai.doc.ts         # AI API docs
+│   │   ├── campaign.doc.ts   # Campaign API docs
+│   │   ├── customer.doc.ts   # Customer API docs
+│   │   ├── data-ingestion.doc.ts # Data ingestion API docs
+│   │   ├── delivery.doc.ts   # Delivery API docs
+│   │   └── order.doc.ts      # Order API docs
 │   ├── interfaces/           # TypeScript interfaces
 │   ├── middleware/           # Express middlewares
-│   ├── middlewares/          # Additional middlewares
+│   │   ├── auth.ts           # Auth middleware
+│   │   ├── authMiddleware.ts # Alternative auth middleware
+│   │   └── cache.ts          # Caching middleware
 │   ├── models/               # Database models
 │   │   ├── User.ts           # User model
 │   │   ├── Customer.ts       # Customer model
@@ -268,8 +274,9 @@ backend/
 │   │   ├── orderRoutes.ts    # Order routes
 │   │   ├── segmentRoutes.ts  # Segment routes
 │   │   ├── campaignRoutes.ts # Campaign routes
-│   │   ├── dataRoutes.ts     # Data import routes
-│   │   └── (other routes)
+│   │   ├── aiRoutes.ts       # AI routes
+│   │   ├── deliveryRoutes.ts # Delivery routes
+│   │   └── dataRoutes.ts     # Data import routes
 │   ├── services/             # Business logic
 │   │   ├── authService.ts    # Auth service
 │   │   ├── customerService.ts# Customer service
@@ -277,10 +284,16 @@ backend/
 │   │   ├── segmentService.ts # Segment service
 │   │   ├── campaignService.ts# Campaign service
 │   │   ├── aiService.ts      # AI service
-│   │   └── (other services)
-│   ├── types/                # TypeScript type definitions
+│   │   ├── uploadService.ts  # Upload service
+│   │   ├── deliveryBatchService.ts # Delivery batch service
+│   │   ├── messageDeliveryService.ts # Message delivery service
+│   │   └── campaignSchedulerService.ts # Campaign scheduler
 │   └── utils/                # Utility functions
+│       ├── validation.ts     # Validation utilities
+│       ├── errors.ts         # Error handling utilities
+│       └── helpers.ts        # Helper functions
 └── index.ts                  # Application entry point
+
 
 ## Getting Started
 
@@ -326,6 +339,7 @@ npm run dev
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/xeno_crm
 JWT_SECRET=your_jwt_secret
+REDIS_URL=redis://localhost:6379
 GEMINI_API_KEY=your_gemini_api_key
 
 
