@@ -203,7 +203,6 @@ export default function CustomersPage() {
     company: '',
     status: 'active' as const,
   });
-  const [customers, setCustomers] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   
@@ -212,15 +211,12 @@ export default function CustomersPage() {
   // Delete mutation
   const deleteCustomerMutation = deleteCustomer();
   
-  // Load customers from API
+  // Handle API errors
   useEffect(() => {
-    if (customersQuery.data) {
-      setCustomers(customersQuery.data);
-    } else if (customersQuery.error) {
+    if (customersQuery.error) {
       toast.error('Failed to load customers. Using fallback data.');
-      setCustomers(fallbackCustomers);
     }
-  }, [customersQuery.data, customersQuery.error]);
+  }, [customersQuery.error]);
   
   // Status options
   const statusOptions = ['active', 'inactive', 'pending', 'all'];
