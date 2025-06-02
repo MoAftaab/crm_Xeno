@@ -186,7 +186,8 @@ export default function CustomersPage() {
       const apiEmails = new Set(apiData.map(c => c.email));
       const filteredMockData = mockCustomers.filter(c => !apiEmails.has(c.email));
       
-      setCustomers([...filteredMockData, ...apiData]);
+      // Type assertion to ensure compatibility with Customer[]  
+      setCustomers([...filteredMockData, ...apiData] as Customer[]);
     }
   }, [customersQuery.data]);
   
